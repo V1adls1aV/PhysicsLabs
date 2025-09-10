@@ -1,0 +1,63 @@
+from __future__ import annotations
+
+import math
+from dataclasses import dataclass
+from functools import cached_property
+
+import pandas as pd
+import streamlit as st
+
+
+@dataclass(frozen=True)
+class Vector2D:
+    x: float
+    y: float
+
+    @classmethod
+    def from_polar(cls, norm: float, angle: float) -> Vector2D:
+        return Vector2D(norm * math.cos(angle), norm * math.sin(angle))
+
+    def to_polar(self) -> tuple[float, float]:
+        return self.norm, self.angle
+
+    def to_df(self) -> pd.DataFrame:
+        return pd.DataFrame({"x": [self.x], "y": [self.y]})
+
+    @cached_property
+    def angle(self) -> float:
+        return math.degrees(math.atan2(self.y, self.x))
+
+    @cached_property
+    def norm(self) -> float:
+        return math.sqrt(self.x**2 + self.y**2)
+
+    def __add__(self, other: Vector2D) -> Vector2D:
+        return Vector2D(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other: Vector2D) -> Vector2D:
+        return Vector2D(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, other: float) -> Vector2D:
+        return Vector2D(self.x * other, self.y * other)
+
+    def __matmul__(self, other: Vector2D) -> float:
+        return self.x * other.x + self.y * other.y
+
+
+def trajectory_to_df(trajectory_data: list[tuple[Vector2D, Vector2D]]) -> pd.DataFrame:
+    """
+    Build a DataFrame with time, position, and velocity characteristics.
+    Columns: time, x, y, velocity, velocity_angle
+    """
+    return pd.DataFrame(
+        [
+            {
+                "time": index / st.session_state.sampling_steps,
+                "x": point.x,
+                "y": point.y,
+                "velocity_norm": velocity.norm,
+                "velocity_angle": velocity.angle,
+            }
+            for index, (point, velocity) in enumerate(trajectory_data)
+        ]
+    )
