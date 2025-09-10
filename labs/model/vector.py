@@ -1,0 +1,36 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+import pandas as pd
+
+
+@dataclass
+class Vector2D:
+    x: float
+    y: float
+
+    def __add__(self, other: Vector2D) -> Vector2D:
+        return Vector2D(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other: Vector2D) -> Vector2D:
+        return Vector2D(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, other: float) -> Vector2D:
+        return Vector2D(self.x * other, self.y * other)
+
+    def __getitem__(self, index: int) -> float:
+        if index == 0:
+            return self.x
+        if index == 1:
+            return self.y
+        raise IndexError
+
+
+def to_dataframe(vectors: list[Vector2D]) -> pd.DataFrame:
+    return pd.DataFrame({"y": [v.y for v in vectors]}, index=[v.x for v in vectors])
+
+
+def get_last_vector(data: pd.DataFrame) -> Vector2D:
+    row = data.iloc[-1]
+    return Vector2D(row.name, row.y)
