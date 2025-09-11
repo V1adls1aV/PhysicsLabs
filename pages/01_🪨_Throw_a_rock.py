@@ -1,11 +1,10 @@
 import streamlit as st
 
-from labs.model.enum import relation_degrees
+from labs.model.enum import relation_degrees, RelationDegree
 from labs.model.vector import Vector2D, to_dataframe
 from labs.throw_a_rock.trajectory import calculate_next_velocity, make_step
 
-st.title("Throw a Rock 🪨")
-
+st.set_page_config(layout="wide")
 
 with st.sidebar:
     sampling_rate: float = st.slider(
@@ -21,26 +20,44 @@ with st.sidebar:
         "Mass, kg", min_value=0.001, max_value=10.0, value=1.0, step=0.001
     )
 
-    resistance_type: str = st.radio("Air resistance type", relation_degrees)
+    resistance_type: RelationDegree = st.radio("Air resistance type", relation_degrees)
 
-    # K-resistance choice here
+    match resistance_type:
+        case RelationDegree.LINEAR:
+            linear_resistance_rate: float = st.slider(
+                "Linear resistance rate",
+                min_value=0.0,
+                max_value=5.0,
+                value=0.5,
+                step=0.01,
+            )
+        case RelationDegree.QUADRATIC:
+            quadratic_resistance_rate: float = st.slider(
+                "Quadratic resistance rate",
+                min_value=0.0,
+                max_value=5.0,
+                value=0.5,
+                step=0.01,
+            )
 
+
+st.title("Throw a Rock 🪨")
 
 time_delta = 0.2
 velocity = Vector2D(v / (2**0.5), v / (2**0.5))
 
-previous_point = Vector2D(0, 0)
+previous_point = Vector2D(0.0, 0.0)
 coordinates = [previous_point]
 
+chart = st.scatter_chart(
+    to_dataframe(coordinates), x="x", y="y", x_label="x, meters", y_label="y, meters"
+)
 
-for i in range(20):
+while previous_point.y >= 0.0:
     new_point = make_step(previous_point, velocity, time_delta)
     velocity = calculate_next_velocity(velocity, time_delta)
     # Display vectors.
-    # Keep axes ratio 1:1
     # chart.add_rows(to_dataframe([new_point]))
     previous_point = new_point
     coordinates.append(new_point)
-
-
-chart = st.line_chart(to_dataframe(coordinates))
+    chart.add_rows(to_dataframe([new_point]))

@@ -1,4 +1,5 @@
 # from scipy.integrate import ode
+import time
 
 from labs.model.vector import Vector2D
 
@@ -10,5 +11,5 @@ def make_step(
 
 
 def calculate_next_velocity(velocity: Vector2D, time_delta: float) -> Vector2D:
-    # time.sleep(0.2)
+    time.sleep(0.2)
     return velocity + Vector2D(-1, -3) * time_delta

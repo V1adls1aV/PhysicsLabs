@@ -28,7 +28,7 @@ class Vector2D:
 
 
 def to_dataframe(vectors: list[Vector2D]) -> pd.DataFrame:
-    return pd.DataFrame({"y": [v.y for v in vectors]}, index=[v.x for v in vectors])
+    return pd.DataFrame({"x": [v.x for v in vectors], "y": [v.y for v in vectors]})
 
 
 def get_last_vector(data: pd.DataFrame) -> Vector2D:
