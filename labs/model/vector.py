@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from typing import Iterable
 
 import pandas as pd
 
@@ -31,18 +32,6 @@ class Vector2D:
     def __mul__(self, other: float) -> Vector2D:
         return Vector2D(self.x * other, self.y * other)
 
-    def __getitem__(self, index: int) -> float:
-        if index == 0:
-            return self.x
-        if index == 1:
-            return self.y
-        raise IndexError
 
-
-def vectors_to_df(vectors: list[Vector2D]) -> pd.DataFrame:
+def vectors_to_df(vectors: Iterable[Vector2D]) -> pd.DataFrame:
     return pd.DataFrame({"x": [v.x for v in vectors], "y": [v.y for v in vectors]})
-
-
-def get_last_vector(data: pd.DataFrame) -> Vector2D:
-    row = data.iloc[-1]
-    return Vector2D(row.name, row.y)

@@ -1,0 +1,35 @@
+from labs.model.constant import G
+from labs.throw_a_rock.acceleration.variation_law import (
+    AccelerationVariationLaw,
+    AccelerationVariationLawByAxis,
+)
+
+from .drag import linear_drag_factor
+
+
+def acceleration_y(velocity: float) -> float:
+    return -(linear_drag_factor() * velocity) - G
+
+
+def acceleration_x(velocity: float) -> float:
+    return -(linear_drag_factor() * velocity)
+
+
+def acceleration_x_jacobian(velocity: float) -> float:
+    return -linear_drag_factor() * acceleration_x(velocity)
+
+
+def acceleration_y_jacobian(velocity: float) -> float:
+    return -linear_drag_factor() * acceleration_y(velocity)
+
+
+linear_acceleration_law = AccelerationVariationLaw(
+    x=AccelerationVariationLawByAxis(
+        equation=acceleration_x,
+        jacobian=acceleration_x_jacobian,
+    ),
+    y=AccelerationVariationLawByAxis(
+        equation=acceleration_y,
+        jacobian=acceleration_y_jacobian,
+    ),
+)

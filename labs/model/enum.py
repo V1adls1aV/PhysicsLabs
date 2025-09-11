@@ -1,14 +1,14 @@
 from enum import StrEnum
 
 
-class RelationDegree(StrEnum):
-    NONE = "none"
+class CorrelationType(StrEnum):
+    CONSTANT = "constant"
     LINEAR = "linear"
     QUADRATIC = "quadratic"
 
 
 relation_degrees = [
-    RelationDegree.NONE,
-    RelationDegree.LINEAR,
-    RelationDegree.QUADRATIC,
+    CorrelationType.CONSTANT,
+    CorrelationType.LINEAR,
+    CorrelationType.QUADRATIC,
 ]
