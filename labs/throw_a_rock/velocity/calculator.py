@@ -11,6 +11,7 @@ class VelocityCalculator:
         acceleration_law: AccelerationVariationLaw,
         sampling_delta: float,
     ):
+        self.initial_velocity = initial_velocity
         self.sampling_delta = sampling_delta
         self.equation_x = (
             ode(

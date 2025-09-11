@@ -6,10 +6,7 @@ from labs.model.constant import G
 from labs.model.enum import CorrelationType, relation_degrees
 from labs.model.vector import Vector2D
 from labs.throw_a_rock.acceleration import acceleration_law_by_resistance_type
-from labs.throw_a_rock.trajectory import (
-    compute_grounding_point,
-    compute_next_point,
-)
+from labs.throw_a_rock.motion.simulation import simulate_flight
 from labs.throw_a_rock.velocity.calculator import VelocityCalculator
 
 st.set_page_config(layout="wide")
@@ -77,32 +74,22 @@ with st.sidebar:
 
 st.title("Throw a Rock 🪨")
 
-velocity = Vector2D.from_polar(initial_velocity_norm, angle)
 velocity_calculator = VelocityCalculator(
-    initial_velocity=velocity,
+    initial_velocity=Vector2D.from_polar(initial_velocity_norm, angle),
     acceleration_law=acceleration_law_by_resistance_type[resistance_type],
     sampling_delta=sampling_delta,
 )
 
-previous_point = Vector2D(0.0, 0.0)
-new_point = compute_next_point(previous_point, velocity, sampling_delta)
-
 chart = st.line_chart(
-    previous_point.to_df(),
+    Vector2D(0.0, 0.0).to_df(),
     x="x",
     y="y",
     x_label="x, meters",
     y_label="y, meters",
 )
 
-while new_point.y >= 0.0:
-    chart.add_rows(new_point.to_df())
-    previous_point = new_point
+point = Vector2D(0.0, 0.0)
+for point in simulate_flight(velocity_calculator):
+    chart.add_rows(point.to_df())
 
-    velocity = velocity_calculator()
-    new_point = compute_next_point(previous_point, velocity, sampling_delta)
-
-grounding_point = compute_grounding_point(previous_point, velocity)
-chart.add_rows(grounding_point.to_df())
-
-st.text(f"Approximate grounding point is {grounding_point.x:.2f} meters.")
+st.text(f"Approximate grounding point is {point.x:.2f} meters.")
