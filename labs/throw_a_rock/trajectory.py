@@ -10,6 +10,12 @@ def make_step(
     return current_position + Vector2D(velocity.x * time_delta, velocity.y * time_delta)
 
 
-def calculate_next_velocity(velocity: Vector2D, time_delta: float) -> Vector2D:
-    time.sleep(0.2)
+def compute_next_velocity(velocity: Vector2D, time_delta: float) -> Vector2D:
+    time.sleep(0.02)
     return velocity + Vector2D(-1, -3) * time_delta
+
+
+def compute_grounding_point(current_position: Vector2D, velocity: Vector2D) -> Vector2D:
+    grounding_time = current_position.y / -velocity.y
+    x = current_position.x + velocity.x * grounding_time
+    return Vector2D(x, y=0.0)

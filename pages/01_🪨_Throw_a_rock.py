@@ -1,8 +1,12 @@
 import streamlit as st
 
 from labs.model.enum import relation_degrees, RelationDegree
-from labs.model.vector import Vector2D, to_dataframe
-from labs.throw_a_rock.trajectory import calculate_next_velocity, make_step
+from labs.model.vector import Vector2D, vectors_to_df
+from labs.throw_a_rock.trajectory import (
+    compute_next_velocity,
+    make_step,
+    compute_grounding_point,
+)
 
 st.set_page_config(layout="wide")
 
@@ -47,17 +51,24 @@ time_delta = 0.2
 velocity = Vector2D(v / (2**0.5), v / (2**0.5))
 
 previous_point = Vector2D(0.0, 0.0)
-coordinates = [previous_point]
+new_point = make_step(previous_point, velocity, time_delta)
 
-chart = st.scatter_chart(
-    to_dataframe(coordinates), x="x", y="y", x_label="x, meters", y_label="y, meters"
+chart = st.line_chart(
+    vectors_to_df([previous_point, new_point]),
+    x="x",
+    y="y",
+    x_label="x, meters",
+    y_label="y, meters",
 )
 
-while previous_point.y >= 0.0:
-    new_point = make_step(previous_point, velocity, time_delta)
-    velocity = calculate_next_velocity(velocity, time_delta)
-    # Display vectors.
-    # chart.add_rows(to_dataframe([new_point]))
+while new_point.y >= 0.0:
+    chart.add_rows(new_point.to_df())
     previous_point = new_point
-    coordinates.append(new_point)
-    chart.add_rows(to_dataframe([new_point]))
+
+    velocity = compute_next_velocity(velocity, time_delta)
+    new_point = make_step(previous_point, velocity, time_delta)
+
+grounding_point = compute_grounding_point(previous_point, velocity)
+chart.add_rows(grounding_point.to_df())
+
+st.markdown(f"Approximate grounding point is {grounding_point.x:.2f} meters.")

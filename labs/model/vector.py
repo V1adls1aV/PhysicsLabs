@@ -10,6 +10,9 @@ class Vector2D:
     x: float
     y: float
 
+    def to_df(self) -> pd.DataFrame:
+        return pd.DataFrame({"x": [self.x], "y": [self.y]})
+
     def __add__(self, other: Vector2D) -> Vector2D:
         return Vector2D(self.x + other.x, self.y + other.y)
 
@@ -27,7 +30,7 @@ class Vector2D:
         raise IndexError
 
 
-def to_dataframe(vectors: list[Vector2D]) -> pd.DataFrame:
+def vectors_to_df(vectors: list[Vector2D]) -> pd.DataFrame:
     return pd.DataFrame({"x": [v.x for v in vectors], "y": [v.y for v in vectors]})
 
 
