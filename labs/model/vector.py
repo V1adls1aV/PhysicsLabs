@@ -18,6 +18,10 @@ class Vector2D:
     def to_df(self) -> pd.DataFrame:
         return pd.DataFrame({"x": [self.x], "y": [self.y]})
 
+    @property
+    def norm(self):
+        return math.sqrt(self.x**2 + self.y**2)
+
     def __add__(self, other: Vector2D) -> Vector2D:
         return Vector2D(self.x + other.x, self.y + other.y)
 
