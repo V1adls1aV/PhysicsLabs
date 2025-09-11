@@ -1,12 +1,15 @@
+import math
+
 import streamlit as st
 
+from labs.model.constant import G
 from labs.model.enum import relation_degrees, RelationDegree
 from labs.model.vector import Vector2D, vectors_to_df
 from labs.throw_a_rock.trajectory import (
-    compute_next_velocity,
     make_step,
     compute_grounding_point,
 )
+from labs.throw_a_rock.velocity import compute_next_velocity
 
 st.set_page_config(layout="wide")
 
@@ -14,11 +17,11 @@ with st.sidebar:
     sampling_rate: float = st.slider(
         "Sampling rate, sec", min_value=0.01, max_value=1.0, value=0.1, step=0.01
     )
-    v: float = st.slider(
+    initial_velocity_norm: float = st.slider(
         "Velocity, m/s", min_value=0.0, max_value=334.0, value=10.0, step=0.01
     )
-    angle: float = st.slider(
-        "Angle, deg", min_value=0.0, max_value=90.0, value=45.0, step=1.0
+    angle: float = math.radians(
+        st.slider("Angle, deg", min_value=0.0, max_value=90.0, value=45.0, step=1.0)
     )
     mass: float = st.slider(
         "Mass, kg", min_value=0.001, max_value=10.0, value=1.0, step=0.001
@@ -44,11 +47,13 @@ with st.sidebar:
                 step=0.01,
             )
 
+    st.text(f"g = {G} m/s")
+
 
 st.title("Throw a Rock 🪨")
 
-time_delta = 0.2
-velocity = Vector2D(v / (2**0.5), v / (2**0.5))
+time_delta = 3
+velocity = Vector2D.from_polar(initial_velocity_norm, angle)
 
 previous_point = Vector2D(0.0, 0.0)
 new_point = make_step(previous_point, velocity, time_delta)
@@ -71,4 +76,4 @@ while new_point.y >= 0.0:
 grounding_point = compute_grounding_point(previous_point, velocity)
 chart.add_rows(grounding_point.to_df())
 
-st.markdown(f"Approximate grounding point is {grounding_point.x:.2f} meters.")
+st.text(f"Approximate grounding point is {grounding_point.x:.2f} meters.")

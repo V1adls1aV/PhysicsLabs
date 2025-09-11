@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 import pandas as pd
@@ -9,6 +10,10 @@ import pandas as pd
 class Vector2D:
     x: float
     y: float
+
+    @classmethod
+    def from_polar(cls, norm: float, angle: float) -> Vector2D:
+        return Vector2D(norm * math.cos(angle), norm * math.sin(angle))
 
     def to_df(self) -> pd.DataFrame:
         return pd.DataFrame({"x": [self.x], "y": [self.y]})
