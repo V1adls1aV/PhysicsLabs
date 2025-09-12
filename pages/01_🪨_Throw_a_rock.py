@@ -15,36 +15,18 @@ with st.sidebar:
     resistance_type: CorrelationType = st.segmented_control(
         "Air resistance type", relation_degrees, default=CorrelationType.LINEAR
     )
+    if resistance_type is None:
+        st.warning("Choose the resistance type! Linear one is used now.")
+        resistance_type = CorrelationType.LINEAR
 
-    match resistance_type:
-        case CorrelationType.CONSTANT:
-            st.slider(
-                "Constant air resistance rate",
-                min_value=0.0,
-                max_value=5.0,
-                value=0.0,
-                step=0.01,
-                key="constant_air_resistance_rate",
-            )
-        case CorrelationType.LINEAR:
-            st.slider(
-                "Linear air resistance rate",
-                min_value=0.0,
-                max_value=5.0,
-                value=0.5,
-                step=0.01,
-                key="linear_air_resistance_rate",
-            )
-        case CorrelationType.QUADRATIC:
-            st.slider(
-                "Quadratic air resistance rate",
-                min_value=0.0,
-                max_value=5.0,
-                value=0.5,
-                step=0.01,
-                key="quadratic_air_resistance_rate",
-            )
-
+    st.slider(
+        "Air resistance rate",
+        min_value=0.0,
+        max_value=5.0,
+        value=0.5,
+        step=0.01,
+        key="air_resistance_rate",
+    )
     initial_velocity_norm: float = st.slider(
         "Velocity, m/s", min_value=0.0, max_value=334.0, value=40.0, step=0.1
     )
@@ -59,7 +41,6 @@ with st.sidebar:
         step=0.001,
         key="rock_mass",
     )
-
     sampling_delta: float = 1.0 / st.slider(
         "Sampling steps per second, step/sec",
         min_value=1,

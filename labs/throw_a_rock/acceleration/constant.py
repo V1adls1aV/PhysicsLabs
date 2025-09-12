@@ -6,15 +6,15 @@ from labs.throw_a_rock.acceleration.variation_law import (
     AccelerationVariationLawByAxis,
 )
 
-from .drag import constant_drag_factor
+from .drag import drag_factor
 
 
 def acceleration_y(velocity: float) -> float:
-    return -constant_drag_factor() * np.sign(velocity) - G
+    return -drag_factor() * np.sign(velocity) - G
 
 
 def acceleration_x(_: float) -> float:
-    return -constant_drag_factor()
+    return -drag_factor()
 
 
 def acceleration_x_jacobian(_: float) -> float:

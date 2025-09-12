@@ -4,23 +4,23 @@ from labs.throw_a_rock.acceleration.variation_law import (
     AccelerationVariationLawByAxis,
 )
 
-from .drag import quadratic_drag_factor
+from .drag import drag_factor
 
 
 def acceleration_y(velocity: float) -> float:
-    return -(quadratic_drag_factor() * velocity**2) - G
+    return -(drag_factor() * velocity**2) - G
 
 
 def acceleration_x(velocity: float) -> float:
-    return -(quadratic_drag_factor() * velocity**2)
+    return -(drag_factor() * velocity**2)
 
 
 def acceleration_x_jacobian(velocity: float) -> float:
-    return -2 * quadratic_drag_factor() * velocity * acceleration_x(velocity)
+    return -2 * drag_factor() * velocity * acceleration_x(velocity)
 
 
 def acceleration_y_jacobian(velocity: float) -> float:
-    return -2 * quadratic_drag_factor() * velocity * acceleration_y(velocity)
+    return -2 * drag_factor() * velocity * acceleration_y(velocity)
 
 
 quadratic_acceleration_law = AccelerationVariationLaw(
