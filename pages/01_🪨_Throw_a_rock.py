@@ -41,12 +41,13 @@ with st.sidebar:
         step=0.001,
         key="rock_mass",
     )
-    sampling_delta: float = 1.0 / st.slider(
-        "Sampling steps per second, step/sec",
+    sampling_delta: float = 1.0 / 2 ** st.slider(
+        "Log2 of sampling steps per second",
         min_value=1,
-        max_value=100,
-        value=30,
+        max_value=10,
+        value=5,
         step=1,
+        help="The formula of the real steps per second used is 2^(chosen number). By default: 5 -> 32 sps",
     )
 
     with st.expander("Constants used"):

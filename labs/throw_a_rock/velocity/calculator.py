@@ -24,7 +24,7 @@ class VelocityCalculator:
         self.equation_y = (
             ode(
                 f=lambda _, v: acceleration_law.y.equation(v),
-                jac=lambda _, v: acceleration_law.y.equation(v),
+                jac=lambda _, v: acceleration_law.y.jacobian(v),
             )
             .set_integrator("vode", method="bdf")
             .set_initial_value(initial_velocity.y)
