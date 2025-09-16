@@ -25,11 +25,9 @@ def acceleration_y_jacobian(velocity: float) -> float:
 
 quadratic_acceleration_law = AccelerationVariationLaw(
     x=AccelerationVariationLawByAxis(
-        equation=acceleration_x,
-        jacobian=acceleration_x_jacobian,
+        equation=acceleration_x, jacobian=acceleration_x_jacobian
     ),
     y=AccelerationVariationLawByAxis(
-        equation=acceleration_y,
-        jacobian=acceleration_y_jacobian,
+        equation=acceleration_y, jacobian=acceleration_y_jacobian
     ),
 )

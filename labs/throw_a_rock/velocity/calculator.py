@@ -10,7 +10,7 @@ class VelocityCalculator:
         initial_velocity: Vector2D,
         acceleration_law: AccelerationVariationLaw,
         sampling_delta: float,
-    ):
+    ) -> None:
         self.initial_velocity = initial_velocity
         self.sampling_delta = sampling_delta
         self.equation_x = (

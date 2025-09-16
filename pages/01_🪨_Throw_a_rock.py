@@ -63,11 +63,7 @@ velocity_calculator = VelocityCalculator(
 )
 
 chart = st.line_chart(
-    Vector2D(0.0, 0.0).to_df(),
-    x="x",
-    y="y",
-    x_label="x, meters",
-    y_label="y, meters",
+    Vector2D(0.0, 0.0).to_df(), x="x", y="y", x_label="x, meters", y_label="y, meters"
 )
 
 point = Vector2D(0.0, 0.0)

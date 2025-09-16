@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
+from functools import cached_property
 
 import pandas as pd
 
 
-@dataclass
+@dataclass(frozen=True)
 class Vector2D:
     x: float
     y: float
@@ -19,7 +20,7 @@ class Vector2D:
     def to_df(self) -> pd.DataFrame:
         return pd.DataFrame({"x": [self.x], "y": [self.y]})
 
-    @property
+    @cached_property
     def norm(self):
         return math.sqrt(self.x**2 + self.y**2)
 
@@ -31,6 +32,9 @@ class Vector2D:
 
     def __mul__(self, other: float) -> Vector2D:
         return Vector2D(self.x * other, self.y * other)
+
+    def __matmul__(self, other: Vector2D) -> float:
+        return self.x * other.x + self.y * other.y
 
 
 def vectors_to_df(vectors: Iterable[Vector2D]) -> pd.DataFrame:

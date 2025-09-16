@@ -5,9 +5,72 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "pre-commit>=4.3.0",
-    "ruff>=0.12.12",
+    "numpy>=2.3.3",
+    "pandas>=2.3.2",
     "scipy>=1.16.1",
     "streamlit>=1.49.1",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+    "ruff>=0.13.0",
     "watchdog>=6.0.0",
 ]
+
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "F", "E4", "E7", "E9", # default (Pyflakes + pycodestyle subset)
+    "S", # flake8-bandit (security)
+    "B", # flake8-bugbear (common bug causes)
+    "A", # flake8-builtins (builtin name shadowing)
+    "C4", # flake8-comprehensions
+    "ANN", # flake8-annotations
+    "ARG", # flake8-unused-arguments
+    "ASYNC", # flake8-async
+    "FBT", # flake8-boolean-trap (disallow boolean positional arguments)
+    "RET", # flake8-return
+    "SIM", # flake8-simplify
+    "PTH", # flake8-use-pathlib
+    "I", # isort (imports)
+    "N", # pep8-naming
+    "UP", # pyupgrade (disallow deprecated language features)
+    "FURB", # refurb (use new language features)
+    "RUF", # ruff-specific
+    "PT", # pytest
+    "FAST", # FastAPI
+]
+fixable = ["ALL"]
+
+ignore = [
+    "ARG001", # allow passing and not using parameters (for authorization requrements)
+    "ANN002", # allow missing annotation for *args
+    "ANN003", # allow missing annotation for **kwargs
+    "ANN201", # allow missing function return type annotation
+    "N818", # do not enforce "Error" suffix for custom exceptions
+    "N999", # do not enforce snake_case module names
+    "RUF001", # do not warn about ambiguous characters in strings
+    "RUF002", # do not warn about ambiguous characters in docstrings
+    "FBT001", # boolean function parameters
+    "FBT002" # default boolean parameters
+]
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**.py" = [
+    "S101", # allow asserting
+    "S311", # allow random
+]
+
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
+
+[tool.ruff.format]
+line-ending = "lf"
+skip-magic-trailing-comma = true
