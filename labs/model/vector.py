@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from functools import cached_property
 
 import pandas as pd
+import streamlit as st
 
 
 @dataclass(frozen=True)
@@ -16,8 +17,15 @@ class Vector2D:
     def from_polar(cls, norm: float, angle: float) -> Vector2D:
         return Vector2D(norm * math.cos(angle), norm * math.sin(angle))
 
+    def to_polar(self) -> tuple[float, float]:
+        return self.norm, self.angle
+
     def to_df(self) -> pd.DataFrame:
         return pd.DataFrame({"x": [self.x], "y": [self.y]})
+
+    @cached_property
+    def angle(self) -> float:
+        return math.degrees(math.atan2(self.y, self.x))
 
     @cached_property
     def norm(self) -> float:
@@ -37,35 +45,18 @@ class Vector2D:
 
 
 def trajectory_to_df(trajectory_data: list[tuple[Vector2D, Vector2D]]) -> pd.DataFrame:
-    """Convert trajectory data to DataFrame with position and velocity information."""
-    return pd.DataFrame(
-        [
-            {
-                "x": point.x,
-                "y": point.y,
-                "velocity_norm": velocity.norm,
-                "velocity_angle": math.degrees(math.atan2(velocity.y, velocity.x)),
-            }
-            for point, velocity in trajectory_data
-        ]
-    )
-
-
-def trajectory_to_time_velocity_df(
-    trajectory_data: list[tuple[Vector2D, Vector2D]], sampling_delta: float
-) -> pd.DataFrame:
-    """Build a DataFrame with time, position, and velocity characteristics.
-
+    """
+    Build a DataFrame with time, position, and velocity characteristics.
     Columns: time, x, y, velocity, velocity_angle
     """
     return pd.DataFrame(
         [
             {
-                "time": index * sampling_delta,
+                "time": index / st.session_state.sampling_steps,
                 "x": point.x,
                 "y": point.y,
-                "velocity": velocity.norm,
-                "velocity_angle": math.degrees(math.atan2(velocity.y, velocity.x)),
+                "velocity_norm": velocity.norm,
+                "velocity_angle": velocity.angle,
             }
             for index, (point, velocity) in enumerate(trajectory_data)
         ]

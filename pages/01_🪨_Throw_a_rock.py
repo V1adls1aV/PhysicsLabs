@@ -4,13 +4,13 @@ import streamlit as st
 
 from labs.model.constant import G
 from labs.model.enum import CorrelationType
-from labs.model.vector import Vector2D, trajectory_to_df, trajectory_to_time_velocity_df
+from labs.model.vector import Vector2D, trajectory_to_df
 from labs.throw_a_rock.acceleration import acceleration_law_by_resistance_type
 from labs.throw_a_rock.motion.compute import compute_flight_time
 from labs.throw_a_rock.motion.simulation import simulate_flight
 from labs.throw_a_rock.velocity.calculator import VelocityCalculator
-from labs.throw_a_rock.visualization.charts import (
-    create_trajectory_chart_with_tooltips,
+from labs.throw_a_rock.visualization import (
+    create_trajectory_chart,
     create_velocity_chart,
 )
 
@@ -49,7 +49,10 @@ with st.sidebar:
         key="rock_mass",
     )
     sampling_delta: float = 1.0 / st.select_slider(
-        "Sampling steps per second", options=(2**x for x in range(11)), value=32
+        "Sampling steps per second",
+        options=(2**x for x in range(11)),
+        value=32,
+        key="sampling_steps",
     )
 
     with st.expander("Constants used"):
@@ -68,17 +71,9 @@ flight_time = compute_flight_time(trajectory_data, sampling_delta)
 
 st.title("Throw a Rock 🪨")
 
-st.altair_chart(
-    create_trajectory_chart_with_tooltips(trajectory_to_df(trajectory_data)),
-    use_container_width=True,
-)
+st.altair_chart(create_trajectory_chart(trajectory_to_df(trajectory_data)))
 
-st.altair_chart(
-    create_velocity_chart(
-        trajectory_to_time_velocity_df(trajectory_data, sampling_delta)
-    ),
-    use_container_width=True,
-)
+st.altair_chart(create_velocity_chart(trajectory_to_df(trajectory_data)))
 
 st.markdown(
     f"""
