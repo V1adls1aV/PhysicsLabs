@@ -29,29 +29,29 @@ with st.sidebar:
     st.slider(
         "Air resistance rate",
         min_value=0.0,
-        max_value=5.0,
+        max_value=2.0,
         value=0.5,
         step=0.01,
         key="air_resistance_rate",
     )
     initial_velocity_norm: float = st.slider(
-        "Velocity, m/s", min_value=0.0, max_value=334.0, value=40.0, step=0.1
+        "Velocity, m/s", min_value=0.0, max_value=343.0, value=30.0, step=0.1
     )
     angle: float = math.radians(
-        st.slider("Angle, deg", min_value=0.0, max_value=90.0, value=30.0, step=0.25)
+        st.slider("Angle, deg", min_value=0.0, max_value=90.0, value=30.0, step=0.1)
     )
     st.slider(
         "Mass, kg",
-        min_value=0.001,
+        min_value=0.01,
         max_value=10.0,
         value=1.0,
-        step=0.001,
+        step=0.01,
         key="rock_mass",
     )
     sampling_delta: float = 1.0 / st.select_slider(
         "Sampling steps per second",
         options=(2**x for x in range(11)),
-        value=32,
+        value=2**5,
         key="sampling_steps",
     )
 
