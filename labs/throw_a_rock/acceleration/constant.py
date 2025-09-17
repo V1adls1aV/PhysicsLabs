@@ -14,12 +14,4 @@ def acceleration_x(_: float) -> float:
     return -drag_factor()
 
 
-def acceleration_x_jacobian(_: float) -> float:
-    return 0.0
-
-
-def acceleration_y_jacobian(_: float) -> float:
-    return 0.0
-
-
 constant_acceleration_law = AccelerationVariationLaw(x=acceleration_x, y=acceleration_y)

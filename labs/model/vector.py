@@ -58,3 +58,24 @@ def trajectory_to_df(trajectory_data: list[tuple[Vector2D, Vector2D]]) -> pd.Dat
             }
         )
     return pd.DataFrame(data)
+
+
+def trajectory_to_time_velocity_df(
+    trajectory_data: list[tuple[Vector2D, Vector2D]], sampling_delta: float
+) -> pd.DataFrame:
+    """Build a DataFrame with time, position, and velocity characteristics.
+
+    Columns: time, x, y, velocity, velocity_angle
+    """
+    rows = []
+    for index, (point, velocity) in enumerate(trajectory_data):
+        rows.append(
+            {
+                "time": index * sampling_delta,
+                "x": point.x,
+                "y": point.y,
+                "velocity": velocity.norm,
+                "velocity_angle": math.degrees(math.atan2(velocity.y, velocity.x)),
+            }
+        )
+    return pd.DataFrame(rows)

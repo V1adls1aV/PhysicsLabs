@@ -1,12 +1,12 @@
 import math
 
-import pandas as pd
 import streamlit as st
 
 from labs.model.constant import G
 from labs.model.enum import CorrelationType, relation_degrees
-from labs.model.vector import Vector2D, trajectory_to_df
+from labs.model.vector import Vector2D, trajectory_to_df, trajectory_to_time_velocity_df
 from labs.throw_a_rock.acceleration import acceleration_law_by_resistance_type
+from labs.throw_a_rock.motion.compute import compute_flight_time
 from labs.throw_a_rock.motion.simulation import simulate_flight
 from labs.throw_a_rock.velocity.calculator import VelocityCalculator
 from labs.throw_a_rock.visialization.charts import (
@@ -61,22 +61,19 @@ velocity_calculator = VelocityCalculator(
     acceleration_law=acceleration_law_by_resistance_type[resistance_type],
     sampling_delta=sampling_delta,
 )
-
-# Collect trajectory data
 trajectory_data = list(simulate_flight(velocity_calculator))
-point = trajectory_data[-1][0]  # Get final point for grounding distance
+grounding_point = trajectory_data[-1][0]
 
-# Create trajectory chart with tooltips
-trajectory_df = trajectory_to_df(trajectory_data)
-trajectory_chart = create_trajectory_chart_with_tooltips(trajectory_df)
+
+trajectory_chart = create_trajectory_chart_with_tooltips(
+    trajectory_to_df(trajectory_data)
+)
 st.altair_chart(trajectory_chart, use_container_width=True)
 
-# Display grounding point
-result_field = st.empty()
-result_field.text(f"Approximate grounding point is {point.x:.2f} meters.")
+st.text(f"Approximate grounding point is {grounding_point.x:.2f} meters.")
+flight_time = compute_flight_time(trajectory_data, sampling_delta)
+st.text(f"Approximate flight time is {flight_time:.3f} s.")
 
-# Create velocity chart
-velocity_data = [(point.x, velocity.norm) for point, velocity in trajectory_data]
-velocity_df = pd.DataFrame(velocity_data, columns=["x", "velocity"])
+velocity_df = trajectory_to_time_velocity_df(trajectory_data, sampling_delta)
 velocity_chart = create_velocity_chart(velocity_df)
 st.altair_chart(velocity_chart, use_container_width=True)
