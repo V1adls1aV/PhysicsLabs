@@ -43,3 +43,18 @@ def vectors_to_df(vectors: Iterable[Vector2D]) -> pd.DataFrame:
 
 def velocity_to_df(x: float, velocity: Vector2D) -> pd.DataFrame:
     return pd.DataFrame({"x": [x], "velocity": [velocity.norm]})
+
+
+def trajectory_to_df(trajectory_data: list[tuple[Vector2D, Vector2D]]) -> pd.DataFrame:
+    """Convert trajectory data to DataFrame with position and velocity information."""
+    data = []
+    for point, velocity in trajectory_data:
+        data.append(
+            {
+                "x": point.x,
+                "y": point.y,
+                "velocity_norm": velocity.norm,
+                "velocity_angle": math.degrees(math.atan2(velocity.y, velocity.x)),
+            }
+        )
+    return pd.DataFrame(data)
