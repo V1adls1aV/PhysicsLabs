@@ -39,3 +39,7 @@ class Vector2D:
 
 def vectors_to_df(vectors: Iterable[Vector2D]) -> pd.DataFrame:
     return pd.DataFrame({"x": [v.x for v in vectors], "y": [v.y for v in vectors]})
+
+
+def velocity_to_df(x: float, velocity: Vector2D) -> pd.DataFrame:
+    return pd.DataFrame({"x": [x], "velocity": [velocity.norm]})

@@ -1,10 +1,11 @@
 import math
 
+import pandas as pd
 import streamlit as st
 
 from labs.model.constant import G
 from labs.model.enum import CorrelationType, relation_degrees
-from labs.model.vector import Vector2D
+from labs.model.vector import Vector2D, velocity_to_df
 from labs.throw_a_rock.acceleration import acceleration_law_by_resistance_type
 from labs.throw_a_rock.motion.simulation import simulate_flight
 from labs.throw_a_rock.velocity.calculator import VelocityCalculator
@@ -61,8 +62,19 @@ chart = st.line_chart(
     Vector2D(0.0, 0.0).to_df(), x="x", y="y", x_label="x, meters", y_label="y, meters"
 )
 
-point = Vector2D(0.0, 0.0)
-for point in simulate_flight(velocity_calculator):
-    chart.add_rows(point.to_df())
+result_field = st.empty()
 
-st.text(f"Approximate grounding point is {point.x:.2f} meters.")
+velocity_chart = st.line_chart(
+    pd.DataFrame({"x": [0.0], "velocity": [0.0]}),
+    x="x",
+    y="velocity",
+    x_label="x, meters",
+    y_label="velocity, m/s",
+)
+
+point = Vector2D(0.0, 0.0)
+for point, velocity in simulate_flight(velocity_calculator):
+    chart.add_rows(point.to_df())
+    velocity_chart.add_rows(velocity_to_df(point.x, velocity))
+
+result_field.text(f"Approximate grounding point is {point.x:.2f} meters.")
