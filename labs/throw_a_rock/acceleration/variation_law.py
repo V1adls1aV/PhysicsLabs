@@ -6,11 +6,5 @@ from dataclasses import dataclass
 
 @dataclass
 class AccelerationVariationLaw:
-    x: AccelerationVariationLawByAxis
-    y: AccelerationVariationLawByAxis
-
-
-@dataclass
-class AccelerationVariationLawByAxis:
-    equation: Callable[[float], float]
-    jacobian: Callable[[float], float]
+    x: Callable[[float], float]
+    y: Callable[[float], float]
