@@ -9,13 +9,8 @@ def simulate_flight(
     velocity_calculator: VelocityCalculator,
 ) -> Generator[tuple[Vector2D, Vector2D]]:
     """Returns a generator that yields a tuple of (point, velocity) at each time step."""
-    previous_point = Vector2D(0.0, 0.0)
+    point = Vector2D(0.0, 0.0)
     velocity = velocity_calculator.initial_velocity
-    yield previous_point, velocity
-
-    point = compute_next_point(
-        previous_point, velocity, velocity_calculator.sampling_delta
-    )
 
     while point.y >= 0.0:
         yield point, velocity
