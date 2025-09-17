@@ -1,37 +1,22 @@
-from __future__ import annotations
-
 import altair as alt
 import pandas as pd
 
 
-def _equal_scale_domains(
-    df: pd.DataFrame, x_col: str, y_col: str
-) -> tuple[list[float], list[float]]:
-    x_min, x_max = df[x_col].min(), df[x_col].max()
-    y_min, y_max = df[y_col].min(), df[y_col].max()
-    data_range = max(x_max - x_min, y_max - y_min)
-    x_center, y_center = (x_min + x_max) / 2, (y_min + y_max) / 2
-    return [x_center - data_range / 2, x_center + data_range / 2], [
-        y_center - data_range / 2,
-        y_center + data_range / 2,
-    ]
-
-
-def _hover_selection(field: str) -> alt.Selection:
+def _hover_selection(field: str) -> alt.Parameter:
     return alt.selection_single(
         fields=[field], nearest=True, on="mouseover", empty="none"
     )
 
 
 def _interactive_points(
-    layer: alt.Chart, hover: alt.Selection, size: int = 65
+    layer: alt.Chart, hover: alt.Parameter, size: int = 65
 ) -> alt.Chart:
     return layer.transform_filter(hover).mark_circle(size=size)
 
 
 def _tooltip_rule(
     data: pd.DataFrame,
-    hover: alt.Selection,
+    hover: alt.Parameter,
     x_field: str,
     y_field: str | None,
     tooltip_defs: list[alt.Tooltip],
@@ -46,22 +31,18 @@ def _tooltip_rule(
     return alt.Chart(data).mark_rule().encode(**encode_kwargs).add_selection(hover)
 
 
-def create_trajectory_chart_with_tooltips(trajectory_df: pd.DataFrame) -> alt.Chart:
+def create_trajectory_chart_with_tooltips(
+    trajectory_df: pd.DataFrame,
+) -> alt.LayerChart:
     """Create an interactive trajectory chart with velocity tooltips."""
     hover = _hover_selection("x")
-
-    x_domain, y_domain = _equal_scale_domains(trajectory_df, "x", "y")
 
     lines = (
         alt.Chart(trajectory_df, title="Rock Trajectory")
         .mark_line()
         .encode(
-            x=alt.X(
-                "x:Q", title="X Position (meters)", scale=alt.Scale(domain=x_domain)
-            ),
-            y=alt.Y(
-                "y:Q", title="Y Position (meters)", scale=alt.Scale(domain=y_domain)
-            ),
+            x=alt.X("x:Q", title="X Position (meters)"),
+            y=alt.Y("y:Q", title="Y Position (meters)"),
         )
         .properties(width=400, height=400)
     )
@@ -84,7 +65,7 @@ def create_trajectory_chart_with_tooltips(trajectory_df: pd.DataFrame) -> alt.Ch
     return lines + points + tooltips
 
 
-def create_velocity_chart(velocity_df: pd.DataFrame) -> alt.Chart:
+def create_velocity_chart(velocity_df: pd.DataFrame) -> alt.LayerChart:
     """Create a velocity magnitude chart."""
     hover = _hover_selection("time")
 

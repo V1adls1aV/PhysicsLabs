@@ -3,13 +3,13 @@ import math
 import streamlit as st
 
 from labs.model.constant import G
-from labs.model.enum import CorrelationType, relation_degrees
+from labs.model.enum import CorrelationType
 from labs.model.vector import Vector2D, trajectory_to_df, trajectory_to_time_velocity_df
 from labs.throw_a_rock.acceleration import acceleration_law_by_resistance_type
 from labs.throw_a_rock.motion.compute import compute_flight_time
 from labs.throw_a_rock.motion.simulation import simulate_flight
 from labs.throw_a_rock.velocity.calculator import VelocityCalculator
-from labs.throw_a_rock.visialization.charts import (
+from labs.throw_a_rock.visualization.charts import (
     create_trajectory_chart_with_tooltips,
     create_velocity_chart,
 )
@@ -18,7 +18,9 @@ st.set_page_config(layout="wide")
 
 with st.sidebar:
     resistance_type: CorrelationType = st.segmented_control(
-        "Air resistance type", relation_degrees, default=CorrelationType.LINEAR
+        "Air resistance type",
+        options=list(CorrelationType),
+        default=CorrelationType.LINEAR,
     )
     if resistance_type is None:
         st.warning("Choose the resistance type! Linear one is used now.")
@@ -38,7 +40,7 @@ with st.sidebar:
     angle: float = math.radians(
         st.slider("Angle, deg", min_value=0.0, max_value=90.0, value=30.0, step=0.25)
     )
-    mass: float = st.slider(
+    st.slider(
         "Mass, kg",
         min_value=0.001,
         max_value=10.0,
@@ -54,8 +56,6 @@ with st.sidebar:
         st.text(f"g = {G} m/s")
 
 
-st.title("Throw a Rock 🪨")
-
 velocity_calculator = VelocityCalculator(
     initial_velocity=Vector2D.from_polar(initial_velocity_norm, angle),
     acceleration_law=acceleration_law_by_resistance_type[resistance_type],
@@ -63,17 +63,28 @@ velocity_calculator = VelocityCalculator(
 )
 trajectory_data = list(simulate_flight(velocity_calculator))
 grounding_point = trajectory_data[-1][0]
-
-
-trajectory_chart = create_trajectory_chart_with_tooltips(
-    trajectory_to_df(trajectory_data)
-)
-st.altair_chart(trajectory_chart, use_container_width=True)
-
-st.text(f"Approximate grounding point is {grounding_point.x:.2f} meters.")
 flight_time = compute_flight_time(trajectory_data, sampling_delta)
-st.text(f"Approximate flight time is {flight_time:.3f} s.")
 
-velocity_df = trajectory_to_time_velocity_df(trajectory_data, sampling_delta)
-velocity_chart = create_velocity_chart(velocity_df)
-st.altair_chart(velocity_chart, use_container_width=True)
+
+st.title("Throw a Rock 🪨")
+
+st.altair_chart(
+    create_trajectory_chart_with_tooltips(trajectory_to_df(trajectory_data)),
+    use_container_width=True,
+)
+
+st.altair_chart(
+    create_velocity_chart(
+        trajectory_to_time_velocity_df(trajectory_data, sampling_delta)
+    ),
+    use_container_width=True,
+)
+
+st.markdown(
+    f"""
+    | Measure | Approximate value |
+    | --- | --- |
+    | Grounding point | {grounding_point.x:.2f} meters |
+    | Flight time | {flight_time:.2f} seconds |
+    """
+)

@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "altair>=5.5.0",
     "numpy>=2.3.3",
     "pandas>=2.3.2",
     "scipy>=1.16.1",
@@ -47,16 +48,9 @@ select = [
 fixable = ["ALL"]
 
 ignore = [
-    "ARG001", # allow passing and not using parameters (for authorization requrements)
-    "ANN002", # allow missing annotation for *args
-    "ANN003", # allow missing annotation for **kwargs
-    "ANN201", # allow missing function return type annotation
-    "N818", # do not enforce "Error" suffix for custom exceptions
     "N999", # do not enforce snake_case module names
     "RUF001", # do not warn about ambiguous characters in strings
     "RUF002", # do not warn about ambiguous characters in docstrings
-    "FBT001", # boolean function parameters
-    "FBT002" # default boolean parameters
 ]
 
 # Allow unused variables when underscore-prefixed.

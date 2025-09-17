@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import cached_property
 
@@ -21,7 +20,7 @@ class Vector2D:
         return pd.DataFrame({"x": [self.x], "y": [self.y]})
 
     @cached_property
-    def norm(self):
+    def norm(self) -> float:
         return math.sqrt(self.x**2 + self.y**2)
 
     def __add__(self, other: Vector2D) -> Vector2D:
@@ -37,27 +36,19 @@ class Vector2D:
         return self.x * other.x + self.y * other.y
 
 
-def vectors_to_df(vectors: Iterable[Vector2D]) -> pd.DataFrame:
-    return pd.DataFrame({"x": [v.x for v in vectors], "y": [v.y for v in vectors]})
-
-
-def velocity_to_df(x: float, velocity: Vector2D) -> pd.DataFrame:
-    return pd.DataFrame({"x": [x], "velocity": [velocity.norm]})
-
-
 def trajectory_to_df(trajectory_data: list[tuple[Vector2D, Vector2D]]) -> pd.DataFrame:
     """Convert trajectory data to DataFrame with position and velocity information."""
-    data = []
-    for point, velocity in trajectory_data:
-        data.append(
+    return pd.DataFrame(
+        [
             {
                 "x": point.x,
                 "y": point.y,
                 "velocity_norm": velocity.norm,
                 "velocity_angle": math.degrees(math.atan2(velocity.y, velocity.x)),
             }
-        )
-    return pd.DataFrame(data)
+            for point, velocity in trajectory_data
+        ]
+    )
 
 
 def trajectory_to_time_velocity_df(
@@ -67,9 +58,8 @@ def trajectory_to_time_velocity_df(
 
     Columns: time, x, y, velocity, velocity_angle
     """
-    rows = []
-    for index, (point, velocity) in enumerate(trajectory_data):
-        rows.append(
+    return pd.DataFrame(
+        [
             {
                 "time": index * sampling_delta,
                 "x": point.x,
@@ -77,5 +67,6 @@ def trajectory_to_time_velocity_df(
                 "velocity": velocity.norm,
                 "velocity_angle": math.degrees(math.atan2(velocity.y, velocity.x)),
             }
-        )
-    return pd.DataFrame(rows)
+            for index, (point, velocity) in enumerate(trajectory_data)
+        ]
+    )
