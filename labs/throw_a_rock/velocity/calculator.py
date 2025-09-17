@@ -14,12 +14,12 @@ class VelocityCalculator:
         self.initial_velocity = initial_velocity
         self.sampling_delta = sampling_delta
         self.equation_x = (
-            ode(f=lambda _, v: acceleration_law.x.equation(v))
+            ode(f=lambda _, v: acceleration_law.x(v))
             .set_integrator("lsoda")
             .set_initial_value(initial_velocity.x)
         )
         self.equation_y = (
-            ode(f=lambda _, v: acceleration_law.y.equation(v))
+            ode(f=lambda _, v: acceleration_law.y(v))
             .set_integrator("vode", method="bdf")
             .set_initial_value(initial_velocity.y)
         )
