@@ -3,8 +3,8 @@ import pandas as pd
 
 
 def hover_selection(field: str) -> alt.Parameter:
-    return alt.selection_single(
-        fields=[field], nearest=True, on="mouseover", empty="none"
+    return alt.selection_point(
+        fields=[field], nearest=True, on="mouseover", empty=False
     )
 
 
@@ -28,4 +28,4 @@ def tooltip_rule(
             alt.Tooltip("velocity_angle:Q", title="Angle", format=".1f"),
         ],
     }
-    return alt.Chart(data).mark_rule().encode(**encode_kwargs).add_selection(hover)
+    return alt.Chart(data).mark_rule().encode(**encode_kwargs).add_params(hover)

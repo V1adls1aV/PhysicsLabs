@@ -17,7 +17,7 @@ from labs.throw_a_rock.visualization import (
 st.set_page_config(layout="wide")
 
 with st.sidebar:
-    resistance_type: CorrelationType = st.segmented_control(
+    resistance_type: CorrelationType | None = st.segmented_control(
         "Air resistance type",
         options=list(CorrelationType),
         default=CorrelationType.LINEAR,
