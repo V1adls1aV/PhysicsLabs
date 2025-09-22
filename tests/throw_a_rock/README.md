@@ -8,12 +8,12 @@
 
 ### Общий случай
 
-$
+$$
 \begin{cases}
   x(t) = v_0 \cos\alpha \times t + \frac{a_x}{2} \times t^2 \\
   y(t) = v_0 \sin\alpha \times t + \frac{a_y}{2} \times t^2
 \end{cases}
-$
+$$
 
 $Ox$ — горизонтально по направлению полета, $Oy$ — строго вверх
 
@@ -24,12 +24,13 @@ $Ox$ — горизонтально по направлению полета, $O
 То есть $a_x = 0, \ a_y = -g$
 
 Тогда:
-$
+
+$$
 \begin{cases}
   x(t) = v_0 \cos\alpha \times t \\
   y(t) = v_0 \sin\alpha \times t - \frac{g}{2} \times t^2
 \end{cases}
-$
+$$
 
 Приравняем: $y(t) = 0$  
 и найдем время полета: $t_п = \frac{2}{g} v_0 \sin\alpha$  
@@ -48,28 +49,31 @@ $
 То есть $F_c = kv$
 
 Тогда:
-$
+
+$$
 \begin{cases}
   a_x = \frac{dv_x}{dt} = -\frac{kv_x}{m} \\
   a_y = \frac{dv_y}{dt} = -\frac{kv_y}{m} - g
 \end{cases}
-$
+$$
 
 Решение системы имеет вид:
-$
+
+$$
 \begin{cases}
   v_x(t) = v_0 \cos\alpha \, e^{-\frac{k}{m}t} \\
   v_y(t) = \left( v_0 \sin\alpha + \frac{m}{k} g \right) e^{-\frac{k}{m}t} - \frac{m}{k} g
 \end{cases}
-$
+$$
 
 a координаты тела:
-$
+
+$$
 \begin{cases}
   x(t) = \frac{m}{k} v_0 \cos\alpha \left( 1 - e^{-\frac{k}{m}t} \right) \\
   y(t) = \frac{m}{k} \left( v_0 \sin\alpha + \frac{m}{k} g \right) \left( 1 - e^{-\frac{k}{m}t} \right) - \frac{m}{k} g t
 \end{cases}
-$
+$$
 
 Соответственно, время полета $t_п$ — ненулевой корень уравнения $y(t) = 0$, а дальность полета $s = x(t_п)$
 
