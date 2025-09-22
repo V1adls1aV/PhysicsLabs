@@ -9,11 +9,11 @@ def create_trajectory_chart(trajectory_df: pd.DataFrame) -> alt.LayerChart:
     hover = hover_selection("x")
 
     lines = (
-        alt.Chart(trajectory_df, title="Rock Trajectory")
+        alt.Chart(trajectory_df, title="Rock trajectory")
         .mark_line()
         .encode(
-            x=alt.X("x:Q", title="X Position (meters)"),
-            y=alt.Y("y:Q", title="Y Position (meters)"),
+            x=alt.X("x:Q", title="X position (m)"),
+            y=alt.Y("y:Q", title="Y position (m)"),
         )
     )
 

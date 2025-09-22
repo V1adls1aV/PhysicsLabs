@@ -1,7 +1,8 @@
 from scipy.integrate import ode
 
 from labs.model.vector import Vector2D
-from labs.throw_a_rock.acceleration.variation_law import AccelerationVariationLaw
+
+from ..acceleration.variation_law import AccelerationVariationLaw
 
 
 class VelocityCalculator:
@@ -26,10 +27,6 @@ class VelocityCalculator:
 
     def __call__(self) -> Vector2D:
         return Vector2D(
-            x=float(
-                self.equation_x.integrate(self.equation_x.t + self.sampling_delta)[0]
-            ),
-            y=float(
-                self.equation_y.integrate(self.equation_y.t + self.sampling_delta)[0]
-            ),
+            x=float(self.equation_x.integrate(self.equation_x.t + self.sampling_delta)[0]),
+            y=float(self.equation_y.integrate(self.equation_y.t + self.sampling_delta)[0]),
         )

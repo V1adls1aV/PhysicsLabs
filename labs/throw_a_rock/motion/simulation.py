@@ -1,8 +1,9 @@
 from collections.abc import Generator
 
 from labs.model.vector import Vector2D
-from labs.throw_a_rock.motion.compute import compute_grounding_point, compute_next_point
-from labs.throw_a_rock.velocity.calculator import VelocityCalculator
+
+from ..velocity import VelocityCalculator
+from .compute import compute_grounding_point, compute_next_point
 
 
 def simulate_flight(
@@ -18,8 +19,6 @@ def simulate_flight(
         previous_point = point
 
         velocity = velocity_calculator()
-        point = compute_next_point(
-            previous_point, velocity, velocity_calculator.sampling_delta
-        )
+        point = compute_next_point(previous_point, velocity, velocity_calculator.sampling_delta)
 
     yield compute_grounding_point(previous_point, velocity), velocity

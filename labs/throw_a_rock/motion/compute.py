@@ -1,9 +1,7 @@
 from labs.model.vector import Vector2D
 
 
-def compute_next_point(
-    current_point: Vector2D, velocity: Vector2D, time_delta: float
-) -> Vector2D:
+def compute_next_point(current_point: Vector2D, velocity: Vector2D, time_delta: float) -> Vector2D:
     return current_point + Vector2D(velocity.x, velocity.y) * time_delta
 
 

@@ -1,7 +1,7 @@
 from labs.model.constant import G
-from labs.throw_a_rock.acceleration.variation_law import AccelerationVariationLaw
 
 from .drag import drag_factor
+from .variation_law import AccelerationVariationLaw
 
 
 def acceleration_y(velocity: float) -> float:

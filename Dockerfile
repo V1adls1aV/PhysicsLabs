@@ -2,8 +2,7 @@ FROM ghcr.io/astral-sh/uv:python3.12-alpine
 
 WORKDIR /app
 COPY labs/ ./labs/
-COPY pages/ ./pages/
-COPY Main.py pyproject.toml uv.lock ./
+COPY main.py pyproject.toml uv.lock ./
 
 ENV UV_NO_DEV=1
 ENV UV_LINK_MODE=copy

@@ -9,7 +9,7 @@ def create_velocity_chart(velocity_df: pd.DataFrame) -> alt.LayerChart:
     hover = hover_selection("time")
 
     lines = (
-        alt.Chart(velocity_df, title="Velocity by Time")
+        alt.Chart(velocity_df, title="Velocity by time")
         .mark_line()
         .encode(
             x=alt.X("time:Q", title="Time (s)"),
