@@ -8,6 +8,11 @@ Each page represents a separate lab, where you can find experiment description, 
 playground itself.
 
 
+## Contents
+
+- **M1. Throw a rock** · [General information](labs/throw_a_rock) · [Tests](tests/throw_a_rock)
+
+
 ## Launch guide
 
 ### Option 1. Docker
