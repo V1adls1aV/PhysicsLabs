@@ -1,0 +1,51 @@
+name: uv-pytest
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: set up python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+
+      - name: install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: 0.8.18
+          enable-cache: true
+
+      - name: sync dependencies
+        run: uv sync --frozen --dev
+
+      - name: run tests
+        run: >
+          uv run pytest
+          --junit-xml=junit.xml
+          --cov=labs --cov-report term-missing:skip-covered --cov-report xml:coverage.xml
+        continue-on-error: false
+
+      - name: upload junit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-report
+          path: junit.xml
+
+      - name: upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
