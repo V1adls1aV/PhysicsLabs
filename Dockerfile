@@ -12,5 +12,5 @@ RUN --mount=type=cache,target=$UV_CACHE_DIR \
 
 ENV STREAMLIT_SERVER_ADDRESS=0.0.0.0
 ENV STREAMLIT_SERVER_PORT=8501
-CMD ["uv", "run", "streamlit", "run", "Main.py"]
+CMD ["uv", "run", "streamlit", "run", "main.py"]
 EXPOSE $STREAMLIT_SERVER_PORT

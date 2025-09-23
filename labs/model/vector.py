@@ -15,7 +15,7 @@ class Vector2D:
 
     @classmethod
     def from_polar(cls, norm: float, angle: float) -> Vector2D:
-        return Vector2D(norm * math.cos(angle), norm * math.sin(angle))
+        return Vector2D(norm * round(math.cos(angle), 15), norm * round(math.sin(angle), 15))
 
     def to_polar(self) -> tuple[float, float]:
         return self.norm, self.angle
