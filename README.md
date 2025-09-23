@@ -10,12 +10,16 @@ playground itself.
 
 ## Contents
 
+Try out interactive labs **right now**, on our [website!](https://hsse-physics-labs.streamlit.app/)
+
 - **M1. Throw a rock** · [General information](labs/throw_a_rock) · [Tests](tests/throw_a_rock)
 
 
 ## Launch guide
 
 ### Option 1. Docker
+
+This app launch option is not ready yet, use the next one (option 2)
 
 Simply run:
 
@@ -48,7 +52,7 @@ uv sync --no-dev
 And launch the app:
 
 ```shell
-uv run streamlit run Main.py
+uv run streamlit run main.py
 ```
 
 ### Option 3. `pip`
@@ -64,7 +68,7 @@ pip install -r requirements.txt
 And run the app:
 
 ```shell
-streamlit run Main.py
+streamlit run main.py
 ```
 
 
@@ -96,5 +100,5 @@ uv run pre-commit install
 And run the app (with hot-reload):
 
 ```shell
-uv run streamlit run Main.py
+uv run streamlit run main.py
 ```
