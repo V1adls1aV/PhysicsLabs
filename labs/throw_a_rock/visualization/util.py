@@ -16,10 +16,10 @@ def tooltip_rule(data: pd.DataFrame, hover: alt.Parameter, x_field: str, y_field
         "y": f"{y_field}:Q",
         "opacity": alt.condition(hover, alt.value(0.3), alt.value(0)),
         "tooltip": [
-            alt.Tooltip("x:Q", title="X position", format=".2f"),
-            alt.Tooltip("y:Q", title="Y position", format=".2f"),
-            alt.Tooltip("velocity_norm:Q", title="Velocity", format=".2f"),
-            alt.Tooltip("velocity_angle:Q", title="Angle", format=".1f"),
+            alt.Tooltip("x:Q", title="X position"),
+            alt.Tooltip("y:Q", title="Y position"),
+            alt.Tooltip("velocity_norm:Q", title="Velocity"),
+            alt.Tooltip("velocity_angle:Q", title="Angle"),
         ],
     }
     return alt.Chart(data).mark_rule().encode(**encode_kwargs).add_params(hover)
