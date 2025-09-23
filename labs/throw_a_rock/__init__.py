@@ -4,9 +4,11 @@ import math
 
 import streamlit as st
 
-from ..model.constant import G
-from ..model.enum import CorrelationType
-from ..model.vector import Vector2D, trajectory_to_df
+from labs.model.constant import G
+from labs.model.enum import CorrelationType
+from labs.model.vector import Vector2D, trajectory_to_df
+from labs.util.accuracy import round_to_significant
+
 from .acceleration import acceleration_law_by_resistance_type
 from .motion.compute import compute_flight_time
 from .motion.simulation import simulate_flight
@@ -97,7 +99,7 @@ def page() -> None:
         f"""
         | Measure | Approximate value |
         | --- | --- |
-        | Flight time | {flight_time:.2f} s |
-        | Flight distance | {grounding_point.x:.2f} m |
+        | Flight time | {round_to_significant(flight_time)} s |
+        | Flight distance | {round_to_significant(grounding_point.x)} m |
         """
     )
