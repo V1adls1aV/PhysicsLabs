@@ -7,6 +7,7 @@ from labs.throw_a_rock.motion.compute import compute_flight_time
 from .util import SAMPLING_DELTA, assert_accuracy, compute_trajectory
 
 
+@pytest.mark.parametrize("correlation_type", list(CorrelationType))
 @pytest.mark.parametrize(
     ("initial_velocity", "angle", "expected_flight_time", "expected_flight_distance"),
     [
@@ -20,11 +21,12 @@ def test_simple(
     angle: float,
     expected_flight_time: float,
     expected_flight_distance: float,
+    correlation_type: CorrelationType,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setitem(st.session_state, "air_resistance_rate", 0)
     monkeypatch.setitem(st.session_state, "rock_mass", 1)  # does not really matter
-    trajectory = compute_trajectory(initial_velocity, angle, CorrelationType.LINEAR)
+    trajectory = compute_trajectory(initial_velocity, angle, correlation_type)
 
     flight_distance = trajectory[-1][0].x
     flight_time = compute_flight_time(trajectory, SAMPLING_DELTA)
