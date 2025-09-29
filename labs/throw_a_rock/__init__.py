@@ -4,7 +4,7 @@ import math
 
 import streamlit as st
 
-from labs.model.constant import G
+from labs.model.constant import g
 from labs.model.enum import CorrelationType
 from labs.model.vector import Vector2D, trajectory_to_df
 from labs.util.accuracy import round_to_significant
@@ -61,7 +61,7 @@ def page() -> None:
         )
 
         with st.expander("Constants used"):
-            st.html(f"g = {G} m/s<sup>2</sup>")
+            st.html(f"g = {g} m/s<sup>2</sup>")
 
     velocity_calculator = VelocityCalculator(
         initial_velocity=Vector2D.from_polar(initial_velocity_norm, angle),
