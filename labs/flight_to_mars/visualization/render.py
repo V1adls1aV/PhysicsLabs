@@ -4,6 +4,8 @@ from typing import Any
 
 import plotly.graph_objects as go
 
+from labs.model.constant import EARTH_RADIUS
+
 
 def render_frame(y: float, rocket: dict[str, Any], planet: dict[str, Any]) -> go.Figure:
     x_range, y_range = _adjust_axies(y)
@@ -18,15 +20,8 @@ def render_frame(y: float, rocket: dict[str, Any], planet: dict[str, Any]) -> go
 
 
 def _adjust_axies(y: float) -> tuple[tuple[float, float], tuple[float, float]]:
-    # Compute dynamic ranges to keep planet (radius=1 at origin) and rocket visible
-    visual_margin = 0.5
-    y_min = min(-1.0, y - visual_margin)
-    y_max = max(1.0, y + visual_margin)
-    y_span = y_max - y_min
-
-    # Maintain 1:1 scale and at least initial x-span
-    x_half_span = max(2.0, y_span / 2.0)
-    x_range = (-x_half_span, x_half_span)
-    y_range = (y_min, y_max)
+    # Compute dynamic ranges to keep planet and rocket visible
+    x_range = (-EARTH_RADIUS * 0.2, EARTH_RADIUS * 0.2)
+    y_range = (EARTH_RADIUS * 0.7, max(y + EARTH_RADIUS * 0.1, EARTH_RADIUS * 1.5))
 
     return x_range, y_range

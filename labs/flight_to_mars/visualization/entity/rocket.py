@@ -7,11 +7,11 @@ from cachetools.func import lru_cache
 
 
 def rocket_shape(
-    x: float, y: float, angle: float, size: float = 0.2, color: str = "white"
+    x: float, y: float, angle: float, size: float = 0.2, color: str = "#8e8e8e"
 ) -> dict[str, Any]:
     rocket = move_shape(_rocket_shape(size), x, y, angle)
     path = "M " + " L ".join(f"{px} {py}" for px, py in rocket) + " Z"
-    return {"type": "path", "path": path, "fillcolor": color, "line_color": "black"}
+    return {"type": "path", "path": path, "fillcolor": color, "line_color": color}
 
 
 def move_shape(shape: np.ndarray, x: float, y: float, angle: float) -> np.ndarray:
