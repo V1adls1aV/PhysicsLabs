@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from functools import partial
 
 import streamlit as st
@@ -6,10 +7,10 @@ from labs.flight_to_mars.model.flight import FlightEquationType
 from labs.flight_to_mars.model.rocket import Rocket
 from labs.flight_to_mars.model.stage import FlightStage
 from labs.flight_to_mars.stage.criteria import is_astronaut_dead
-from labs.flight_to_mars.stage.earth import flight_equations
-from labs.flight_to_mars.stage.earth.calculator import RocketFlightCalculator
 from labs.flight_to_mars.stage.earth.criteria import does_rocket_left_the_earth
 from labs.flight_to_mars.stage.earth.simulation import simulate_flight
+from labs.flight_to_mars.stage.planet import flight_equations
+from labs.flight_to_mars.stage.planet.calculator import RocketFlightCalculator
 from labs.flight_to_mars.visualization.chart import (
     plot_acceleration,
     plot_mass,
@@ -41,7 +42,7 @@ def page() -> None:
             options=list(FlightEquationType),
         )
         if flight_equation_type is None:
-            st.warning("Choose engine work mode. Now fixed acceleration mode is used.")
+            st.warning("Choose engine work mode. Now `fixed acceleration` mode is used.")
             flight_equation_type = FlightEquationType.FIXED_ACCELERATION
 
         initial_mass: float = st.slider(
@@ -134,23 +135,7 @@ def page() -> None:
             st.plotly_chart(figure, key="animation")
 
             results = st.empty()
-            st.subheader("Rocket Metrics Over Time")
-            col1, col2 = st.columns(2)
-            with col1:
-                st.write("**Velocity (m/s)**")
-                velocity_chart = st.empty()
-                st.write("**Mass (kg)**")
-                mass_chart = st.empty()
-            with col2:
-                st.write("**Y Position (m)**")
-                y_chart = st.empty()
-                st.write("**Acceleration (g)**")
-                acceleration_chart = st.empty()
-
-            plot_velocity(velocity_chart, rockets)
-            plot_mass(mass_chart, rockets)
-            plot_y_position(y_chart, rockets)
-            plot_acceleration(acceleration_chart, rockets)
+            telemetry_charts(rockets)
 
             status, warning = results.columns(2)
             with status.container(border=True):
@@ -159,11 +144,35 @@ def page() -> None:
                 else:
                     st.markdown("You have not reached the speed to overcome gravitation.")
 
-            if is_astronaut_dead(rockets):
-                warning.warning("The astronaut is dead. Try not to exceed 10G overload.")
+            show_astronaut_status(rockets, warning)
         case FlightStage.SPACE:
             ...
         case FlightStage.MARS:
             ...
         case None:
             st.warning("Choose one of the stages to simulate.")
+
+
+def telemetry_charts(rockets: Sequence[Rocket]) -> None:
+    st.subheader("Rocket Metrics Over Time")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write("**Velocity (m/s)**")
+        velocity_chart = st.empty()
+        st.write("**Mass (kg)**")
+        mass_chart = st.empty()
+    with col2:
+        st.write("**Y Position (m)**")
+        y_chart = st.empty()
+        st.write("**Acceleration (g)**")
+        acceleration_chart = st.empty()
+
+    plot_velocity(velocity_chart, rockets)
+    plot_mass(mass_chart, rockets)
+    plot_y_position(y_chart, rockets)
+    plot_acceleration(acceleration_chart, rockets)
+
+
+def show_astronaut_status(rockets: list[Rocket], warning: ...) -> None:
+    if is_astronaut_dead(rockets):
+        warning.warning("The astronaut is dead. Try not to exceed 10G overload.")

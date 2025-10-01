@@ -1,11 +1,11 @@
 from collections.abc import Generator
 
 from labs.flight_to_mars.model.rocket import Rocket
-from labs.flight_to_mars.stage.earth.calculator import RocketFlightCalculator
 from labs.flight_to_mars.stage.earth.criteria import (
     does_rocket_left_the_earth,
     does_the_velocity_gap_increase,
 )
+from labs.flight_to_mars.stage.planet.calculator import RocketFlightCalculator
 
 
 def simulate_flight(calculator: RocketFlightCalculator, sampling_delta: float) -> Generator[Rocket]:
