@@ -9,7 +9,9 @@ def planet_shape(planet_filename: str, x: float, y: float, radius: float) -> dic
     with image_path.open("rb") as img_file:
         img_data = base64.b64encode(img_file.read()).decode()
 
-    img_url = f"data:image/png;base64,{img_data}"
+    ext = image_path.suffix.lower()
+    mime = "image/svg+xml" if ext == ".svg" else "image/png"
+    img_url = f"data:{mime};base64,{img_data}"
 
     return {
         "source": img_url,
