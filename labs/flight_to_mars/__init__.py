@@ -2,15 +2,16 @@ from collections.abc import Sequence
 from functools import partial
 
 import streamlit as st
+from streamlit.delta_generator import DeltaGenerator
 
 from labs.flight_to_mars.model.flight import FlightEquationType
 from labs.flight_to_mars.model.rocket import Rocket
 from labs.flight_to_mars.model.stage import FlightStage
 from labs.flight_to_mars.stage.criteria import is_astronaut_dead
-from labs.flight_to_mars.stage.earth.criteria import does_rocket_left_the_earth
-from labs.flight_to_mars.stage.earth.simulation import simulate_flight
 from labs.flight_to_mars.stage.planet import flight_equations
 from labs.flight_to_mars.stage.planet.calculator import RocketFlightCalculator
+from labs.flight_to_mars.stage.planet.criteria import did_rocket_left_the_planet
+from labs.flight_to_mars.stage.planet.simulation import simulate_flight
 from labs.flight_to_mars.visualization.chart import (
     plot_acceleration,
     plot_mass,
@@ -18,6 +19,7 @@ from labs.flight_to_mars.visualization.chart import (
     plot_y_position,
 )
 from labs.flight_to_mars.visualization.entity import earth_shape, rocket_shape
+from labs.flight_to_mars.visualization.entity.mars import mars_shape
 from labs.flight_to_mars.visualization.render import render_animation
 from labs.model.constant import EARTH_MASS, EARTH_RADIUS, MARS_MASS, MARS_RADIUS, G, g
 
@@ -114,7 +116,7 @@ def page() -> None:
 
     match flight_stage:
         case FlightStage.EARTH:
-            planet = earth_shape(x=0, y=0, radius=EARTH_RADIUS)
+            planet = earth_shape(x=0, y=0)
             rocket_shape_at = partial(rocket_shape, x=0, angle=0, size=EARTH_RADIUS / 100)
             initial_rocket = Rocket(
                 y=EARTH_RADIUS,
@@ -128,6 +130,7 @@ def page() -> None:
             calculator = RocketFlightCalculator(
                 rocket=initial_rocket,
                 flight_equation=flight_equations[flight_equation_type],
+                planet_mass=EARTH_MASS,
             )
             rockets: list[Rocket] = list(simulate_flight(calculator, SAMLING_DELTA))
 
@@ -135,11 +138,11 @@ def page() -> None:
             st.plotly_chart(figure, key="animation")
 
             results = st.empty()
-            telemetry_charts(rockets)
+            telemetry_charts(rockets, EARTH_MASS, EARTH_RADIUS)
 
             status, warning = results.columns(2)
             with status.container(border=True):
-                if rockets and does_rocket_left_the_earth(rockets[-1]):
+                if rockets and did_rocket_left_the_planet(rockets[-1], EARTH_MASS):
                     st.markdown("You have successfully escaped Earth's gravitation!")
                 else:
                     st.markdown("You have not reached the speed to overcome gravitation.")
@@ -148,12 +151,48 @@ def page() -> None:
         case FlightStage.SPACE:
             ...
         case FlightStage.MARS:
-            ...
+            planet = mars_shape(x=0, y=0)
+            rocket_shape_at = partial(rocket_shape, x=0, angle=0, size=MARS_RADIUS / 100)
+            initial_rocket = Rocket(
+                y=MARS_RADIUS,
+                velocity=0,
+                netto_mass=netto_mass,
+                fuel_mass=1,  # Magic!
+                fuel_consumption=fuel_consumption,
+                stream_velocity=rocket_stream_velocity * -1,  # A little bit more magic.
+                acceleration=acceleration,
+            )
+
+            # TODO: There is no control under the increasing rocket mass. Remake the output (and input)
+            # TODO: Second mode does not work. Deprecate it completely?
+            calculator = RocketFlightCalculator(
+                rocket=initial_rocket,
+                flight_equation=flight_equations[flight_equation_type],
+                planet_mass=MARS_MASS,
+            )
+            rockets: list[Rocket] = list(simulate_flight(calculator, SAMLING_DELTA))
+
+            figure = render_animation(rockets[::-1], rocket_shape_at, planet)
+            st.plotly_chart(figure, key="animation")
+
+            results = st.empty()
+            telemetry_charts(rockets[::-1], MARS_MASS, MARS_RADIUS)
+
+            status, warning = results.columns(2)
+            with status.container(border=True):
+                if rockets and did_rocket_left_the_planet(rockets[-1], MARS_MASS):
+                    st.markdown(
+                        f"You have to turn on engine at {(rockets[-1].y - MARS_RADIUS) / 1000:.01f}km above to successfully land on Mars."
+                    )
+                else:
+                    st.markdown("You probably have been smashed into pieces.")
+
+            show_astronaut_status(rockets, warning)
         case None:
             st.warning("Choose one of the stages to simulate.")
 
 
-def telemetry_charts(rockets: Sequence[Rocket]) -> None:
+def telemetry_charts(rockets: Sequence[Rocket], planet_mass: float, planet_radius: float) -> None:
     st.subheader("Rocket Metrics Over Time")
     col1, col2 = st.columns(2)
     with col1:
@@ -167,12 +206,12 @@ def telemetry_charts(rockets: Sequence[Rocket]) -> None:
         st.write("**Acceleration (g)**")
         acceleration_chart = st.empty()
 
-    plot_velocity(velocity_chart, rockets)
+    plot_velocity(velocity_chart, rockets, planet_mass)
     plot_mass(mass_chart, rockets)
-    plot_y_position(y_chart, rockets)
+    plot_y_position(y_chart, rockets, planet_radius)
     plot_acceleration(acceleration_chart, rockets)
 
 
-def show_astronaut_status(rockets: list[Rocket], warning: ...) -> None:
+def show_astronaut_status(rockets: list[Rocket], warning: DeltaGenerator) -> None:
     if is_astronaut_dead(rockets):
         warning.warning("The astronaut is dead. Try not to exceed 10G overload.")

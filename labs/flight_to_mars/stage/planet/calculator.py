@@ -9,12 +9,14 @@ class RocketFlightCalculator:
     def __init__(
         self,
         rocket: Rocket,
+        planet_mass: float,
         flight_equation: Callable[[Rocket, float, float, float], list[float]],
     ) -> None:
         y0 = [rocket.y, rocket.velocity, rocket.mass]
         self.rocket = rocket
+        self.planet_mass = planet_mass
         self.equation_y = (
-            ode(f=lambda _, v: flight_equation(rocket, *v))
+            ode(f=lambda _, v: flight_equation(rocket, planet_mass, *v))
             .set_integrator("dopri5")
             .set_initial_value(y0, 0)
         )

@@ -6,8 +6,8 @@ import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 
 from labs.flight_to_mars.model.rocket import Rocket
-from labs.flight_to_mars.stage.earth.criteria import get_earth_escape_velocity
-from labs.model.constant import EARTH_RADIUS, g
+from labs.flight_to_mars.stage.planet.criteria import get_planet_escape_velocity
+from labs.model.constant import g
 
 
 def _time_axis(rockets: Sequence[Rocket]) -> list[float]:
@@ -16,14 +16,14 @@ def _time_axis(rockets: Sequence[Rocket]) -> list[float]:
     return [i * sampling_delta for i in range(len(rockets))]
 
 
-def plot_velocity(container: DeltaGenerator, rockets: Sequence[Rocket]) -> None:
+def plot_velocity(container: DeltaGenerator, rockets: Sequence[Rocket], planet_mass: float) -> None:
     """Plot velocity chart with all data at once."""
     if not rockets:
         return
 
     time = _time_axis(rockets)
     velocity = [r.velocity for r in rockets]
-    escape_velocity = [get_earth_escape_velocity(r.y) for r in rockets]
+    escape_velocity = [get_planet_escape_velocity(r.y, planet_mass) for r in rockets]
     velocity_gap = [e - v for v, e in zip(velocity, escape_velocity, strict=True)]
 
     container.line_chart(
@@ -54,13 +54,15 @@ def plot_mass(container: DeltaGenerator, rockets: Sequence[Rocket]) -> None:
     )
 
 
-def plot_y_position(container: DeltaGenerator, rockets: Sequence[Rocket]) -> None:
+def plot_y_position(
+    container: DeltaGenerator, rockets: Sequence[Rocket], planet_radius: float
+) -> None:
     """Plot height chart with all data at once."""
     if not rockets:
         return
 
     time = _time_axis(rockets)
-    y_values = [r.y - EARTH_RADIUS for r in rockets]
+    y_values = [r.y - planet_radius for r in rockets]
     container.line_chart({"Time (s)": time, "Height (m)": y_values}, x="Time (s)", y="Height (m)")
 
 
@@ -72,7 +74,7 @@ def plot_acceleration(container: DeltaGenerator, rockets: Sequence[Rocket]) -> N
     sampling_delta = float(st.session_state.get("sampling_delta", 1))
     time = _time_axis(rockets)[:-1]  # Exclude last point since we need i+1
     acceleration = [
-        (rockets[i + 1].velocity - rockets[i].velocity) / sampling_delta / g
+        abs((rockets[i + 1].velocity - rockets[i].velocity) / sampling_delta / g)
         for i in range(len(rockets) - 1)
     ]
     container.line_chart(
