@@ -46,7 +46,12 @@ def plot_mass(container: DeltaGenerator, rockets: Sequence[Rocket]) -> None:
 
     time = _time_axis(rockets)
     mass = [r.mass for r in rockets]
-    container.line_chart({"Time (s)": time, "Mass (kg)": mass}, x="Time (s)", y="Mass (kg)")
+    netto_mass = [r.netto_mass for r in rockets]
+    container.line_chart(
+        {"Time (s)": time, "Mass (kg)": mass, "Netto Mass (kg)": netto_mass},
+        x="Time (s)",
+        y=["Mass (kg)", "Netto Mass (kg)"],
+    )
 
 
 def plot_y_position(container: DeltaGenerator, rockets: Sequence[Rocket]) -> None:

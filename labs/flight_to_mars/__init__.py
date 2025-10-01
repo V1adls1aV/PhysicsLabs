@@ -2,13 +2,14 @@ from functools import partial
 
 import streamlit as st
 
+from labs.flight_to_mars.model.flight import FlightEquationType
 from labs.flight_to_mars.model.rocket import Rocket
+from labs.flight_to_mars.model.stage import FlightStage
 from labs.flight_to_mars.stage.criteria import is_astronaut_dead
+from labs.flight_to_mars.stage.earth import flight_equations
 from labs.flight_to_mars.stage.earth.calculator import RocketFlightCalculator
 from labs.flight_to_mars.stage.earth.criteria import does_rocket_left_the_earth
-from labs.flight_to_mars.stage.earth.equation import rocket_flight_equation
 from labs.flight_to_mars.stage.earth.simulation import simulate_flight
-from labs.flight_to_mars.stage.stage import FlightStage
 from labs.flight_to_mars.visualization.chart import (
     plot_acceleration,
     plot_mass,
@@ -17,15 +18,15 @@ from labs.flight_to_mars.visualization.chart import (
 )
 from labs.flight_to_mars.visualization.entity import earth_shape, rocket_shape
 from labs.flight_to_mars.visualization.render import render_animation
-from labs.model.constant import EARTH_MASS, EARTH_RADIUS, MARS_MASS, MARS_RADIUS, G
+from labs.model.constant import EARTH_MASS, EARTH_RADIUS, MARS_MASS, MARS_RADIUS, G, g
 
 __all__ = ["page"]
 
 SAMLING_DELTA = 0.5
-st.session_state.sampling_delta = SAMLING_DELTA
 
 
 def page() -> None:
+    st.session_state.sampling_delta = SAMLING_DELTA
     st.set_page_config(page_title="Flight to Mars 🚀", page_icon="🚀", layout="wide")
     st.title("Flight to Mars 🚀")
 
@@ -33,6 +34,15 @@ def page() -> None:
         flight_stage: FlightStage | None = st.segmented_control(
             "Flight stage", default=FlightStage.EARTH, options=list(FlightStage)
         )
+
+        flight_equation_type: FlightEquationType | None = st.segmented_control(
+            "Engine mode",
+            default=FlightEquationType.FIXED_ACCELERATION,
+            options=list(FlightEquationType),
+        )
+        if flight_equation_type is None:
+            st.warning("Choose engine work mode. Now fixed acceleration mode is used.")
+            flight_equation_type = FlightEquationType.FIXED_ACCELERATION
 
         initial_mass: float = st.slider(
             "Initial mass, kg",
@@ -52,14 +62,32 @@ def page() -> None:
         )
         fuel_mass: float = initial_mass * fuel_ratio / 100
         netto_mass: float = initial_mass - fuel_mass
-        fuel_consumption: float = st.slider(
-            "Fuel consumption, kg/s",
-            min_value=1000,
-            max_value=30_000,
-            value=20_000,
-            step=1000,
-            key="fuel_consumption",
-        )
+
+        fuel_consumption = None
+        acceleration = None
+        match flight_equation_type:
+            case FlightEquationType.FIXED_FUEL_RATE:
+                fuel_consumption: float = st.slider(
+                    "Fuel consumption, kg/s",
+                    min_value=1000,
+                    max_value=30_000,
+                    value=20_000,
+                    step=1000,
+                    key="fuel_consumption",
+                )
+            case FlightEquationType.FIXED_ACCELERATION:
+                acceleration: float = (
+                    st.slider(
+                        "acceleration, g",
+                        min_value=1.0,
+                        max_value=10.0,
+                        value=7.0,
+                        step=0.1,
+                        key="acceleration",
+                    )
+                    * g
+                )
+
         rocket_stream_velocity: float = st.slider(
             "Rocket stream velocity, m/s",
             min_value=1000,
@@ -71,7 +99,10 @@ def page() -> None:
 
         with st.expander("Calculated parameters", expanded=True):
             st.markdown(f"Fuel mass: {fuel_mass} kg")
-            st.markdown(f"Estimated engine utilization time: {fuel_mass / fuel_consumption:.2f} s")
+            if fuel_consumption is not None:
+                st.markdown(
+                    f"Estimated engine utilization time: {fuel_mass / fuel_consumption:.2f} s"
+                )
 
         with st.expander("Constants used"):
             st.html(f"G = {G} N·m<sup>2</sup>/kg<sup>2</sup>")
@@ -84,7 +115,6 @@ def page() -> None:
         case FlightStage.EARTH:
             planet = earth_shape(x=0, y=0, radius=EARTH_RADIUS)
             rocket_shape_at = partial(rocket_shape, x=0, angle=0, size=EARTH_RADIUS / 100)
-            animation = st.empty()
             initial_rocket = Rocket(
                 y=EARTH_RADIUS,
                 velocity=0,
@@ -92,11 +122,16 @@ def page() -> None:
                 fuel_mass=fuel_mass,
                 fuel_consumption=fuel_consumption,
                 stream_velocity=rocket_stream_velocity,
+                acceleration=acceleration,
             )
             calculator = RocketFlightCalculator(
                 rocket=initial_rocket,
-                flight_equation=rocket_flight_equation,
+                flight_equation=flight_equations[flight_equation_type],
             )
+            rockets: list[Rocket] = list(simulate_flight(calculator, SAMLING_DELTA))
+
+            figure = render_animation(rockets, rocket_shape_at, planet)
+            st.plotly_chart(figure, key="animation")
 
             results = st.empty()
             st.subheader("Rocket Metrics Over Time")
@@ -112,10 +147,6 @@ def page() -> None:
                 st.write("**Acceleration (g)**")
                 acceleration_chart = st.empty()
 
-            rockets: list[Rocket] = list(simulate_flight(calculator, SAMLING_DELTA))
-
-            figure = render_animation(rockets, rocket_shape_at, planet)
-            animation.plotly_chart(figure, key="animation")
             plot_velocity(velocity_chart, rockets)
             plot_mass(mass_chart, rockets)
             plot_y_position(y_chart, rockets)

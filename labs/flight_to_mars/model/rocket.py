@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
@@ -9,8 +9,9 @@ class Rocket:
     velocity: float
     netto_mass: float
     fuel_mass: float
-    fuel_consumption: float
     stream_velocity: float
+    fuel_consumption: float | None = field(default=None)
+    acceleration: float | None = field(default=None)
 
     @property
     def mass(self) -> float:
