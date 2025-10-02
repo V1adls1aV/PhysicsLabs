@@ -24,7 +24,7 @@ from labs.model.constant import EARTH_MASS, EARTH_RADIUS, MARS_MASS, MARS_RADIUS
 
 __all__ = ["page"]
 
-SAMLING_DELTA = 0.5
+SAMLING_DELTA = 0.3
 
 
 def page() -> None:
@@ -39,17 +39,17 @@ def page() -> None:
 
         initial_mass: float = 1000 * st.slider(
             "Initial mass, ton",
-            min_value=10,
-            max_value=500,
-            value=80,
-            step=1,
+            min_value=10.0,
+            max_value=500.0,
+            value=80.0,
+            step=0.1,
         )
         fuel_ratio: float = st.slider(
             "Fuel ratio, %",
             min_value=80.0,
             max_value=99.9,
             value=95.0,
-            step=0.1,
+            step=0.05,
         )
         fuel_mass: float = initial_mass * fuel_ratio / 100
         netto_mass: float = initial_mass - fuel_mass
@@ -59,8 +59,11 @@ def page() -> None:
             min_value=1.0,
             max_value=15.0,
             value=7.0,
-            step=0.1,
-            help="The rocket engine operates in a mode that maintains constant rocket acceleration to protect the astronaut from excessive force.",
+            step=0.05,
+            help=(
+                "The rocket engine operates in a mode that maintains constant rocket "
+                "acceleration to protect the astronaut from excessive force."
+            ),
         )
 
         rocket_stream_velocity: float = 1000 * st.slider(
@@ -68,7 +71,7 @@ def page() -> None:
             min_value=1.0,
             max_value=7.0,
             value=4.5,
-            step=0.1,
+            step=0.02,
         )
 
         with st.expander("Calculated parameters", expanded=True):
@@ -100,6 +103,9 @@ def page() -> None:
                 planet_mass=EARTH_MASS,
             )
             rockets: list[Rocket] = list(simulate_flight(calculator, SAMLING_DELTA))
+
+            if not rockets:
+                st.rerun()
 
             figure = render_animation(rockets, rocket_shape_at, planet)
             st.plotly_chart(figure, key="animation")
@@ -139,15 +145,18 @@ def page() -> None:
                 flight_equation=flight_equations[flight_equation_type],
                 planet_mass=MARS_MASS,
             )
-            rockets: list[Rocket] = list(
-                filter(lambda r: r.mass <= initial_mass, simulate_flight(calculator, SAMLING_DELTA))
-            )
+            raw_rockets: list[Rocket] = list(simulate_flight(calculator, SAMLING_DELTA))
+            rockets: list[Rocket] = list(filter(lambda r: r.mass <= initial_mass, raw_rockets))
+
+            if not rockets:
+                st.rerun()
 
             figure = render_animation(rockets[::-1], rocket_shape_at, planet)
             st.plotly_chart(figure, key="animation")
 
             results = st.empty()
-            telemetry_charts(rockets[::-1], MARS_MASS, MARS_RADIUS)
+            if did_rocket_left_the_planet(rockets[-1], MARS_MASS):
+                telemetry_charts(rockets[::-1], MARS_MASS, MARS_RADIUS)
 
             if is_astronaut_dead(rockets):
                 status, warning = results.columns(2)
@@ -158,10 +167,15 @@ def page() -> None:
             with status.container(border=True):
                 if rockets and did_rocket_left_the_planet(rockets[-1], MARS_MASS):
                     st.markdown(
-                        f"You have to turn on engine at {(rockets[-1].y - MARS_RADIUS) / 1000:.01f}km above to successfully land on Mars. You should have only {rockets[-1].fuel_mass / fuel_mass * 100:.02f}% ({rockets[-1].fuel_mass:.02f} ton) of a fuel tank to be full."
+                        f"You have to turn on engine at {(rockets[-1].y - MARS_RADIUS) / 1000:.01f}km above "
+                        f"to successfully land on Mars. You should have only {rockets[-1].fuel_mass / fuel_mass * 100:.02f}% "
+                        f"({rockets[-1].fuel_mass:.02f} ton) of a fuel tank to be full."
                     )
                 else:
-                    st.markdown("You probably have been smashed into pieces.")
+                    st.markdown(
+                        f"You probably have been smashed into pieces. You must have {(raw_rockets[-1].fuel_mass / fuel_mass - 1) * 100:.02f}% "
+                        f"more fuel ({rockets[-1].fuel_mass:.02f} ton totaly) while maintaining the same payload mass."
+                    )
 
         case None:
             st.warning("Choose one of the stages to simulate.")
