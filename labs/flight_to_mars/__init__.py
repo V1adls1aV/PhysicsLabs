@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 from functools import partial
+from math import pi
 
 import streamlit as st
 
@@ -17,10 +18,26 @@ from labs.flight_to_mars.visualization.chart import (
     plot_velocity,
     plot_y_position,
 )
-from labs.flight_to_mars.visualization.entity import earth_shape, rocket_shape
-from labs.flight_to_mars.visualization.entity.mars import mars_shape
+from labs.flight_to_mars.visualization.entity import (
+    earth_shape,
+    mars_shape,
+    orbit_shape,
+    rocket_shape,
+    sun_shape,
+)
 from labs.flight_to_mars.visualization.render import render_animation
-from labs.model.constant import EARTH_MASS, EARTH_RADIUS, MARS_MASS, MARS_RADIUS, G, g
+from labs.model.constant import (
+    EARTH_MARS_DISTANCE,
+    EARTH_MASS,
+    EARTH_RADIUS,
+    MARS_MASS,
+    MARS_RADIUS,
+    SUN_EARTH_DISTANCE,
+    SUN_MARS_DISTANCE,
+    SUN_RADIUS,
+    G,
+    g,
+)
 
 __all__ = ["page"]
 
@@ -36,6 +53,9 @@ def page() -> None:
             "Flight stage", default=FlightStage.EARTH, options=list(FlightStage)
         )
         flight_equation_type = FlightEquationType.FIXED_ACCELERATION
+
+        if flight_stage == FlightStage.SPACE:
+            show_real_size: bool = st.checkbox("Show real planets size")
 
         initial_mass: float = 1000 * st.slider(
             "Initial mass, ton",
@@ -88,8 +108,9 @@ def page() -> None:
     match flight_stage:
         case FlightStage.EARTH:
             planet = earth_shape(x=0, y=0)
-            rocket_shape_at = partial(rocket_shape, x=0, angle=0, size=EARTH_RADIUS / 100)
+            rocket_shape_at = partial(rocket_shape, angle=0, size=EARTH_RADIUS / 100)
             initial_rocket = Rocket(
+                x=0,
                 y=EARTH_RADIUS,
                 velocity=0,
                 netto_mass=netto_mass,
@@ -107,7 +128,7 @@ def page() -> None:
             if not rockets:
                 st.rerun()
 
-            figure = render_animation(rockets, rocket_shape_at, planet)
+            figure = render_animation(rockets, rocket_shape_at, [planet])
             st.plotly_chart(figure, key="animation")
 
             results = st.empty()
@@ -126,12 +147,52 @@ def page() -> None:
                     st.markdown("You have not reached the speed to overcome gravitation.")
 
         case FlightStage.SPACE:
-            ...
+            sun_radius = SUN_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 3
+            earth_radius = (
+                EARTH_RADIUS if show_real_size else EARTH_RADIUS / SUN_RADIUS * sun_radius
+            )
+            mars_radius = MARS_RADIUS if show_real_size else MARS_RADIUS / SUN_RADIUS * sun_radius
+
+            sun = sun_shape(x=SUN_EARTH_DISTANCE, y=0, radius=sun_radius)
+            earth = earth_shape(x=0, y=0, radius=earth_radius)
+            mars = mars_shape(x=-EARTH_MARS_DISTANCE, y=0, radius=mars_radius)
+
+            earth_orbit = orbit_shape(
+                center_x=SUN_EARTH_DISTANCE,
+                center_y=0,
+                semi_major=SUN_EARTH_DISTANCE,
+                semi_minor=SUN_EARTH_DISTANCE,
+            )
+            mars_orbit = orbit_shape(
+                center_x=SUN_EARTH_DISTANCE,
+                center_y=0,
+                semi_major=SUN_MARS_DISTANCE,
+                semi_minor=SUN_MARS_DISTANCE,
+            )
+
+            rocket_shape_at = partial(rocket_shape, angle=pi / 2, size=earth_radius / 3)
+            rockets = [
+                Rocket(
+                    x=-EARTH_RADIUS * 1.1,
+                    y=0,
+                    velocity=0,
+                    netto_mass=netto_mass,
+                    fuel_mass=fuel_mass,
+                    stream_velocity=rocket_stream_velocity,
+                    acceleration=acceleration,
+                )
+            ]
+
+            figure = render_animation(
+                rockets, rocket_shape_at, [earth, mars, sun], [earth_orbit, mars_orbit]
+            )
+            st.plotly_chart(figure, key="animation")
 
         case FlightStage.MARS:
             planet = mars_shape(x=0, y=0)
-            rocket_shape_at = partial(rocket_shape, x=0, angle=0, size=MARS_RADIUS / 100)
+            rocket_shape_at = partial(rocket_shape, angle=0, size=MARS_RADIUS / 100)
             initial_rocket = Rocket(
+                x=0,
                 y=MARS_RADIUS,
                 velocity=0,
                 netto_mass=netto_mass,
@@ -151,7 +212,7 @@ def page() -> None:
             if not rockets:
                 st.rerun()
 
-            figure = render_animation(rockets[::-1], rocket_shape_at, planet)
+            figure = render_animation(rockets[::-1], rocket_shape_at, [planet])
             st.plotly_chart(figure, key="animation")
 
             results = st.empty()

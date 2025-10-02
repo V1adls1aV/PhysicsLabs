@@ -1,43 +1,45 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
 import plotly.graph_objects as go
 
 from labs.flight_to_mars.model.rocket import Rocket
-from labs.model.constant import MARS_RADIUS
 
 
 def render_animation(
-    rockets: Sequence[Rocket], rocket_shape_at: Callable, planet: dict[str, Any]
+    rockets: Sequence[Rocket],
+    rocket_shape_at: Callable,
+    planets: list[dict[str, Any]],
+    orbits: Iterable[dict[str, Any]] = (),
 ) -> go.Figure:
     """Create animated Plotly figure with frames for rocket flight."""
-    max_y = max(rocket.y for rocket in rockets) if rockets else MARS_RADIUS
-    x_range, y_range = _adjust_axies(max_y)
+    max_x = max(max(rocket.x for rocket in rockets), max(planet["x"] for planet in planets))
+    max_y = max(max(rocket.y for rocket in rockets), max(planet["y"] for planet in planets))
+    x_range, y_range = _adjust_axies(max_x, max_y)
 
     frames = []
     for i, rocket in enumerate(rockets):
-        # Create frame with updated rocket shape
-        rocket_shape = rocket_shape_at(y=rocket.y)
+        rocket_shape = rocket_shape_at(x=rocket.x, y=rocket.y)
         frames.append(
             go.Frame(
                 data=[],  # No data needed, shapes are in layout
                 name=str(i),
-                layout={"shapes": [rocket_shape]},
+                layout={"shapes": [*orbits, rocket_shape]},
             )
         )
 
     # Initial frame
-    initial_rocket = rockets[0] if rockets else Rocket(0, 0, 0, 0, 0, 0)
-    initial_rocket_shape = rocket_shape_at(y=initial_rocket.y)
+    initial_rocket = rockets[0]
+    initial_rocket_shape = rocket_shape_at(x=initial_rocket.x, y=initial_rocket.y)
 
     return go.Figure(
         data=[],  # No data needed, shapes are in layout
         frames=frames,
         layout={
-            "shapes": [initial_rocket_shape],
-            "images": [planet],
+            "shapes": [*orbits, initial_rocket_shape],
+            "images": planets,
             "xaxis": {"range": x_range},
             "yaxis": {"range": y_range, "scaleanchor": "x", "scaleratio": 1},
             "updatemenus": [
@@ -48,12 +50,7 @@ def render_animation(
                         {
                             "label": "Play",
                             "method": "animate",
-                            "args": [None, {"frame": {"duration": 100}}],
-                        },
-                        {
-                            "label": "Pause",
-                            "method": "animate",
-                            "args": [[None], {"frame": {"duration": 0}}],
+                            "args": [None, {"frame": {"duration": 5}}],
                         },
                     ],
                 }
@@ -62,8 +59,9 @@ def render_animation(
     )
 
 
-def _adjust_axies(y: float) -> tuple[tuple[float, float], tuple[float, float]]:
+def _adjust_axies(x: float, y: float) -> tuple[tuple[float, float], tuple[float, float]]:
     """Compute dynamic ranges to keep planet and rocket visible."""
-    x_range = (-y * 0.1, y * 0.1)
-    y_range = (y * 0.8, y * 1.1)
+    zoom = 1.1
+    x_range = (-x * zoom, x * zoom)
+    y_range = (-y * zoom, y * zoom)
     return x_range, y_range

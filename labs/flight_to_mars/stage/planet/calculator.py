@@ -24,6 +24,7 @@ class RocketFlightCalculator:
     def __call__(self, time_delta: float) -> Rocket:
         y, velocity, mass = self.equation_y.integrate(self.equation_y.t + time_delta)
         return Rocket(
+            x=self.rocket.x,
             y=y,
             velocity=velocity,
             netto_mass=self.rocket.netto_mass,
