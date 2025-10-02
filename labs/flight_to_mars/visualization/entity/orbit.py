@@ -13,6 +13,6 @@ def orbit_shape(
         "y0": center_y - semi_minor,
         "x1": center_x + semi_major,
         "y1": center_y + semi_minor,
-        "line": {"color": "rgba(255,255,255,0.5)", "width": 1},
+        "line": {"color": "rgba(255,255,255,0.1)", "width": 1},
         "fillcolor": "rgba(0,0,0,0)",
     }

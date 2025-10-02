@@ -12,6 +12,12 @@ from labs.flight_to_mars.stage.planet import flight_equations
 from labs.flight_to_mars.stage.planet.calculator import RocketFlightCalculator
 from labs.flight_to_mars.stage.planet.criteria import did_rocket_left_the_planet
 from labs.flight_to_mars.stage.planet.simulation import simulate_flight
+from labs.flight_to_mars.stage.space.calculator import RocketInterplanetaryFlightCalculator
+from labs.flight_to_mars.stage.space.criteria import does_reach_the_target
+from labs.flight_to_mars.stage.space.equation import (
+    interplanetary_engine_off_equation,
+)
+from labs.flight_to_mars.stage.space.simulation import simulate_interplanetary_flight
 from labs.flight_to_mars.visualization.chart import (
     plot_acceleration,
     plot_mass,
@@ -32,6 +38,7 @@ from labs.model.constant import (
     EARTH_RADIUS,
     MARS_MASS,
     MARS_RADIUS,
+    MAX_HUMANLY_VIABLE_OVERLOAD,
     SUN_EARTH_DISTANCE,
     SUN_MARS_DISTANCE,
     SUN_RADIUS,
@@ -41,10 +48,9 @@ from labs.model.constant import (
 
 __all__ = ["page"]
 
-SAMLING_DELTA = 0.3
-
 
 def page() -> None:
+    SAMLING_DELTA = 1  # noqa: N806
     st.session_state.sampling_delta = SAMLING_DELTA
     st.set_page_config(page_title="Flight to Mars 🚀", page_icon="🚀", layout="wide")
 
@@ -57,45 +63,50 @@ def page() -> None:
         if flight_stage == FlightStage.SPACE:
             show_real_size: bool = st.checkbox("Show real planets size")
 
-        initial_mass: float = 1000 * st.slider(
-            "Initial mass, ton",
-            min_value=10.0,
-            max_value=500.0,
-            value=80.0,
-            step=0.1,
-        )
-        fuel_ratio: float = st.slider(
-            "Fuel ratio, %",
-            min_value=80.0,
-            max_value=99.9,
-            value=95.0,
-            step=0.05,
-        )
-        fuel_mass: float = initial_mass * fuel_ratio / 100
-        netto_mass: float = initial_mass - fuel_mass
+            initial_velocity: float = 1000 * st.slider(
+                "Initial velocity (km/s)", min_value=10.0, max_value=23.5, value=20.0, step=0.1
+            )
+        else:
+            initial_mass: float = 1000 * st.slider(
+                "Initial mass, ton",
+                min_value=10.0,
+                max_value=500.0,
+                value=80.0,
+                step=0.1,
+            )
 
-        acceleration: float = g * st.slider(
-            "Acceleration, g",
-            min_value=1.0,
-            max_value=15.0,
-            value=7.0,
-            step=0.05,
-            help=(
-                "The rocket engine operates in a mode that maintains constant rocket "
-                "acceleration to protect the astronaut from excessive force."
-            ),
-        )
+            fuel_ratio: float = st.slider(
+                "Fuel ratio, %",
+                min_value=80.0,
+                max_value=99.9,
+                value=96.0,
+                step=0.05,
+            )
+            fuel_mass: float = initial_mass * fuel_ratio / 100
+            netto_mass: float = initial_mass - fuel_mass
 
-        rocket_stream_velocity: float = 1000 * st.slider(
-            "Rocket stream velocity, km/s",
-            min_value=1.0,
-            max_value=7.0,
-            value=4.5,
-            step=0.02,
-        )
+            acceleration: float = g * st.slider(
+                "Acceleration, g",
+                min_value=1.0,
+                max_value=10.0,
+                value=2.0,
+                step=0.05,
+                help=(
+                    "The rocket engine operates in a mode that maintains constant rocket "
+                    "acceleration to protect the astronaut from excessive force."
+                ),
+            )
 
-        with st.expander("Calculated parameters", expanded=True):
-            st.markdown(f"Fuel mass: {fuel_mass / 1000} ton")
+            rocket_stream_velocity: float = 1000 * st.slider(
+                "Rocket stream velocity, km/s",
+                min_value=1.0,
+                max_value=7.0,
+                value=4.5,
+                step=0.02,
+            )
+
+            with st.expander("Calculated parameters", expanded=True):
+                st.markdown(f"Fuel mass: {fuel_mass / 1000} ton")
 
         with st.expander("Constants used"):
             st.html(f"G = {G} N·m<sup>2</sup>/kg<sup>2</sup>")
@@ -105,6 +116,9 @@ def page() -> None:
             st.html(f"Mars radius = {MARS_RADIUS} m")
 
     st.title("Flight to Mars 🚀")
+
+    #####################################################################################
+
     match flight_stage:
         case FlightStage.EARTH:
             planet = earth_shape(x=0, y=0)
@@ -136,7 +150,9 @@ def page() -> None:
 
             if is_astronaut_dead(rockets):
                 status, warning = results.columns(2)
-                warning.warning("The astronaut is dead. Try not to exceed 10G overload.")
+                warning.warning(
+                    f"The astronaut is dead. Try not to exceed {MAX_HUMANLY_VIABLE_OVERLOAD}G overload."
+                )
             else:
                 status = results.empty()
 
@@ -146,47 +162,76 @@ def page() -> None:
                 else:
                     st.markdown("You have not reached the speed to overcome gravitation.")
 
-        case FlightStage.SPACE:
-            sun_radius = SUN_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 3
-            earth_radius = (
-                EARTH_RADIUS if show_real_size else EARTH_RADIUS / SUN_RADIUS * sun_radius
-            )
-            mars_radius = MARS_RADIUS if show_real_size else MARS_RADIUS / SUN_RADIUS * sun_radius
+        #################################################################################
 
-            sun = sun_shape(x=SUN_EARTH_DISTANCE, y=0, radius=sun_radius)
+        case FlightStage.SPACE:
+            SAMLING_DELTA = 60 * 60 * 24  # noqa: N806
+            st.session_state.sampling_delta = SAMLING_DELTA
+
+            sun_radius = SUN_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 20
+            earth_radius = EARTH_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 50
+            mars_radius = MARS_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 65
+
+            sun = sun_shape(x=-SUN_EARTH_DISTANCE, y=0, radius=sun_radius)
             earth = earth_shape(x=0, y=0, radius=earth_radius)
-            mars = mars_shape(x=-EARTH_MARS_DISTANCE, y=0, radius=mars_radius)
+            mars = mars_shape(x=EARTH_MARS_DISTANCE, y=0, radius=mars_radius)
+            rocket_shape_at = partial(rocket_shape, angle=-pi / 2, size=earth_radius / 3)
 
             earth_orbit = orbit_shape(
-                center_x=SUN_EARTH_DISTANCE,
+                center_x=-SUN_EARTH_DISTANCE,
                 center_y=0,
                 semi_major=SUN_EARTH_DISTANCE,
                 semi_minor=SUN_EARTH_DISTANCE,
             )
             mars_orbit = orbit_shape(
-                center_x=SUN_EARTH_DISTANCE,
+                center_x=-SUN_EARTH_DISTANCE,
                 center_y=0,
                 semi_major=SUN_MARS_DISTANCE,
                 semi_minor=SUN_MARS_DISTANCE,
             )
 
-            rocket_shape_at = partial(rocket_shape, angle=pi / 2, size=earth_radius / 3)
-            rockets = [
-                Rocket(
-                    x=-EARTH_RADIUS * 1.1,
-                    y=0,
-                    velocity=0,
-                    netto_mass=netto_mass,
-                    fuel_mass=fuel_mass,
-                    stream_velocity=rocket_stream_velocity,
-                    acceleration=acceleration,
+            initial_rocket = Rocket(
+                x=EARTH_RADIUS * 1.1,
+                y=0,
+                velocity=initial_velocity,
+                netto_mass=0,
+                fuel_mass=0,
+                stream_velocity=0,
+                acceleration=0,
+            )
+            rockets = list(
+                simulate_interplanetary_flight(
+                    RocketInterplanetaryFlightCalculator(
+                        initial_rocket, interplanetary_engine_off_equation
+                    ),
+                    sampling_delta=60 * 60 * 24,
+                    target_x=EARTH_MARS_DISTANCE,
                 )
-            ]
+            )
+
+            if not rockets:
+                st.rerun()
 
             figure = render_animation(
                 rockets, rocket_shape_at, [earth, mars, sun], [earth_orbit, mars_orbit]
             )
             st.plotly_chart(figure, key="animation")
+
+            status = st.empty()
+            with status.container(border=True):
+                if does_reach_the_target(EARTH_MARS_DISTANCE, rockets[-1]):
+                    st.markdown("Succesfully reached the Mars!")
+                else:
+                    st.markdown("You failed to maintain enough speed to reach the Mars.")
+
+            st.subheader("Rocket Metrics Over Time")
+            col1, col2 = st.columns(2)
+            col1.write("**Velocity (km/s)**")
+            col2.write("**Acceleration (g)**")
+            plot_velocity(col1, rockets, in_days=True)
+            plot_acceleration(col2, rockets, in_days=True)
+
+        #################################################################################
 
         case FlightStage.MARS:
             planet = mars_shape(x=0, y=0)
@@ -221,7 +266,9 @@ def page() -> None:
 
             if is_astronaut_dead(rockets):
                 status, warning = results.columns(2)
-                warning.warning("The astronaut is dead. Try not to exceed 10G overload.")
+                warning.warning(
+                    f"The astronaut is dead. Try not to exceed {MAX_HUMANLY_VIABLE_OVERLOAD}G overload."
+                )
             else:
                 status = results.empty()
 

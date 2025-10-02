@@ -23,12 +23,9 @@ class RocketFlightCalculator:
 
     def __call__(self, time_delta: float) -> Rocket:
         y, velocity, mass = self.equation_y.integrate(self.equation_y.t + time_delta)
-        return Rocket(
+        return self.rocket.with_xyvf(
             x=self.rocket.x,
             y=y,
             velocity=velocity,
-            netto_mass=self.rocket.netto_mass,
             fuel_mass=mass - self.rocket.netto_mass,
-            fuel_consumption=self.rocket.fuel_consumption,
-            stream_velocity=self.rocket.stream_velocity,
         )

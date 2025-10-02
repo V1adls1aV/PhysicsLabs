@@ -16,26 +16,44 @@ def _time_axis(rockets: Sequence[Rocket]) -> list[float]:
     return [i * sampling_delta for i in range(len(rockets))]
 
 
-def plot_velocity(container: DeltaGenerator, rockets: Sequence[Rocket], planet_mass: float) -> None:
+def plot_velocity(
+    container: DeltaGenerator,
+    rockets: Sequence[Rocket],
+    planet_mass: float | None = None,
+    *,
+    in_days: bool = False,
+) -> None:
     """Plot velocity chart with all data at once."""
     if not rockets:
         return
 
     time = _time_axis(rockets)
+    time_label = "Time (s)"
+    if in_days:
+        time = [t / 60 / 60 / 24 for t in time]
+        time_label = "Time (days)"
+
     velocity = [r.velocity / 1000 for r in rockets]
-    escape_velocity = [get_planet_escape_velocity(r.y, planet_mass) / 1000 for r in rockets]
-    velocity_gap = [e - v for v, e in zip(velocity, escape_velocity, strict=True)]
+    if planet_mass:
+        escape_velocity = [get_planet_escape_velocity(r.y, planet_mass) / 1000 for r in rockets]
+        velocity_gap = [e - v for v, e in zip(velocity, escape_velocity, strict=True)]
 
     container.line_chart(
         {
-            "Time (s)": time,
+            time_label: time,
             "Velocity (km/s)": velocity,
-            "Escape Velocity (km/s)": escape_velocity,
-            "Velocity Gap (km/s)": velocity_gap,
-        },
-        x="Time (s)",
-        y=["Velocity (km/s)", "Escape Velocity (km/s)", "Velocity Gap (km/s)"],
-        color=["#1f77b4", "#ff7f0e", "#5e5e5e"],
+        }
+        | (
+            {"Escape Velocity (km/s)": escape_velocity, "Velocity Gap (km/s)": velocity_gap}
+            if planet_mass
+            else {}
+        ),
+        x=time_label,
+        y=[
+            "Velocity (km/s)",
+            *(["Escape Velocity (km/s)", "Velocity Gap (km/s)"] if planet_mass else {}),
+        ],
+        color=["#1f77b4", *(["#ff7f0e", "#5e5e5e"] if planet_mass else {})],
     )
 
 
@@ -66,19 +84,26 @@ def plot_y_position(
     container.line_chart({"Time (s)": time, "Height (km)": y_values}, x="Time (s)", y="Height (km)")
 
 
-def plot_acceleration(container: DeltaGenerator, rockets: Sequence[Rocket]) -> None:
+def plot_acceleration(
+    container: DeltaGenerator, rockets: Sequence[Rocket], *, in_days: bool = False
+) -> None:
     """Plot acceleration chart with all data at once."""
     if len(rockets) < 2:
         return
 
     sampling_delta = float(st.session_state.get("sampling_delta", 1))
     time = _time_axis(rockets)[:-1]  # Exclude last point since we need i+1
+    time_label = "Time (s)"
+    if in_days:
+        time = [t / 60 / 60 / 24 for t in time]
+        time_label = "Time (days)"
+
     acceleration = [
         abs((rockets[i + 1].velocity - rockets[i].velocity) / sampling_delta / g)
         for i in range(len(rockets) - 1)
     ]
     container.line_chart(
-        {"Time (s)": time, "Acceleration (g)": acceleration},
-        x="Time (s)",
+        {time_label: time, "Acceleration (g)": acceleration},
+        x=time_label,
         y="Acceleration (g)",
     )

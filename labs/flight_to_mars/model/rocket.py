@@ -18,14 +18,17 @@ class Rocket:
     def mass(self) -> float:
         return self.netto_mass + self.fuel_mass
 
-    def rotate(self) -> Rocket:
+    def with_xyvf(self, x: float, y: float, velocity: float, fuel_mass: float) -> Rocket:
         return Rocket(
-            x=self.y,
-            y=self.x,
-            velocity=self.velocity,
+            x=x,
+            y=y,
+            velocity=velocity,
             netto_mass=self.netto_mass,
-            fuel_mass=self.fuel_mass,
+            fuel_mass=fuel_mass,
             stream_velocity=self.stream_velocity,
             fuel_consumption=self.fuel_consumption,
             acceleration=self.acceleration,
         )
+
+    def rotate(self) -> Rocket:
+        return self.with_xyvf(self.y, self.x, self.velocity, self.fuel_mass)
