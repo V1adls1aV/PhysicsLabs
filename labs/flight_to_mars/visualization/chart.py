@@ -22,19 +22,19 @@ def plot_velocity(container: DeltaGenerator, rockets: Sequence[Rocket], planet_m
         return
 
     time = _time_axis(rockets)
-    velocity = [r.velocity for r in rockets]
-    escape_velocity = [get_planet_escape_velocity(r.y, planet_mass) for r in rockets]
+    velocity = [r.velocity / 1000 for r in rockets]
+    escape_velocity = [get_planet_escape_velocity(r.y, planet_mass) / 1000 for r in rockets]
     velocity_gap = [e - v for v, e in zip(velocity, escape_velocity, strict=True)]
 
     container.line_chart(
         {
             "Time (s)": time,
-            "Velocity (m/s)": velocity,
-            "Escape Velocity (m/s)": escape_velocity,
-            "Velocity Gap (m/s)": velocity_gap,
+            "Velocity (km/s)": velocity,
+            "Escape Velocity (km/s)": escape_velocity,
+            "Velocity Gap (km/s)": velocity_gap,
         },
         x="Time (s)",
-        y=["Velocity (m/s)", "Escape Velocity (m/s)", "Velocity Gap (m/s)"],
+        y=["Velocity (km/s)", "Escape Velocity (km/s)", "Velocity Gap (km/s)"],
         color=["#1f77b4", "#ff7f0e", "#5e5e5e"],
     )
 
@@ -45,12 +45,12 @@ def plot_mass(container: DeltaGenerator, rockets: Sequence[Rocket]) -> None:
         return
 
     time = _time_axis(rockets)
-    mass = [r.mass for r in rockets]
-    netto_mass = [r.netto_mass for r in rockets]
+    mass = [r.mass / 1000 for r in rockets]
+    netto_mass = [r.netto_mass / 1000 for r in rockets]
     container.line_chart(
-        {"Time (s)": time, "Mass (kg)": mass, "Netto Mass (kg)": netto_mass},
+        {"Time (s)": time, "Mass (ton)": mass, "Netto Mass (ton)": netto_mass},
         x="Time (s)",
-        y=["Mass (kg)", "Netto Mass (kg)"],
+        y=["Mass (ton)", "Netto Mass (ton)"],
     )
 
 
@@ -62,8 +62,8 @@ def plot_y_position(
         return
 
     time = _time_axis(rockets)
-    y_values = [r.y - planet_radius for r in rockets]
-    container.line_chart({"Time (s)": time, "Height (m)": y_values}, x="Time (s)", y="Height (m)")
+    y_values = [(r.y - planet_radius) / 1000 for r in rockets]
+    container.line_chart({"Time (s)": time, "Height (km)": y_values}, x="Time (s)", y="Height (km)")
 
 
 def plot_acceleration(container: DeltaGenerator, rockets: Sequence[Rocket]) -> None:

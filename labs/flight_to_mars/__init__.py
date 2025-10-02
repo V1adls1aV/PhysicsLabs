@@ -2,7 +2,6 @@ from collections.abc import Sequence
 from functools import partial
 
 import streamlit as st
-from streamlit.delta_generator import DeltaGenerator
 
 from labs.flight_to_mars.model.flight import FlightEquationType
 from labs.flight_to_mars.model.rocket import Rocket
@@ -31,29 +30,19 @@ SAMLING_DELTA = 0.5
 def page() -> None:
     st.session_state.sampling_delta = SAMLING_DELTA
     st.set_page_config(page_title="Flight to Mars 🚀", page_icon="🚀", layout="wide")
-    st.title("Flight to Mars 🚀")
 
     with st.sidebar:
         flight_stage: FlightStage | None = st.segmented_control(
             "Flight stage", default=FlightStage.EARTH, options=list(FlightStage)
         )
+        flight_equation_type = FlightEquationType.FIXED_ACCELERATION
 
-        flight_equation_type: FlightEquationType | None = st.segmented_control(
-            "Engine mode",
-            default=FlightEquationType.FIXED_ACCELERATION,
-            options=list(FlightEquationType),
-        )
-        if flight_equation_type is None:
-            st.warning("Choose engine work mode. Now `fixed acceleration` mode is used.")
-            flight_equation_type = FlightEquationType.FIXED_ACCELERATION
-
-        initial_mass: float = st.slider(
-            "Initial mass, kg",
-            min_value=10_000,
-            max_value=500_000,
-            value=80_000,
-            step=1_000,
-            key="initial_mass",
+        initial_mass: float = 1000 * st.slider(
+            "Initial mass, ton",
+            min_value=10,
+            max_value=500,
+            value=80,
+            step=1,
         )
         fuel_ratio: float = st.slider(
             "Fuel ratio, %",
@@ -61,51 +50,29 @@ def page() -> None:
             max_value=99.9,
             value=95.0,
             step=0.1,
-            key="fuel_ratio",
         )
         fuel_mass: float = initial_mass * fuel_ratio / 100
         netto_mass: float = initial_mass - fuel_mass
 
-        fuel_consumption = None
-        acceleration = None
-        match flight_equation_type:
-            case FlightEquationType.FIXED_FUEL_RATE:
-                fuel_consumption: float = st.slider(
-                    "Fuel consumption, kg/s",
-                    min_value=1000,
-                    max_value=30_000,
-                    value=20_000,
-                    step=1000,
-                    key="fuel_consumption",
-                )
-            case FlightEquationType.FIXED_ACCELERATION:
-                acceleration: float = (
-                    st.slider(
-                        "acceleration, g",
-                        min_value=1.0,
-                        max_value=10.0,
-                        value=7.0,
-                        step=0.1,
-                        key="acceleration",
-                    )
-                    * g
-                )
+        acceleration: float = g * st.slider(
+            "Acceleration, g",
+            min_value=1.0,
+            max_value=15.0,
+            value=7.0,
+            step=0.1,
+            help="The rocket engine operates in a mode that maintains constant rocket acceleration to protect the astronaut from excessive force.",
+        )
 
-        rocket_stream_velocity: float = st.slider(
-            "Rocket stream velocity, m/s",
-            min_value=1000,
-            max_value=7000,
-            value=4500,
-            step=100,
-            key="rocket_stream_velocity",
+        rocket_stream_velocity: float = 1000 * st.slider(
+            "Rocket stream velocity, km/s",
+            min_value=1.0,
+            max_value=7.0,
+            value=4.5,
+            step=0.1,
         )
 
         with st.expander("Calculated parameters", expanded=True):
-            st.markdown(f"Fuel mass: {fuel_mass} kg")
-            if fuel_consumption is not None:
-                st.markdown(
-                    f"Estimated engine utilization time: {fuel_mass / fuel_consumption:.2f} s"
-                )
+            st.markdown(f"Fuel mass: {fuel_mass / 1000} ton")
 
         with st.expander("Constants used"):
             st.html(f"G = {G} N·m<sup>2</sup>/kg<sup>2</sup>")
@@ -114,6 +81,7 @@ def page() -> None:
             st.html(f"Mars mass = {MARS_MASS:.3e} kg")
             st.html(f"Mars radius = {MARS_RADIUS} m")
 
+    st.title("Flight to Mars 🚀")
     match flight_stage:
         case FlightStage.EARTH:
             planet = earth_shape(x=0, y=0)
@@ -123,7 +91,6 @@ def page() -> None:
                 velocity=0,
                 netto_mass=netto_mass,
                 fuel_mass=fuel_mass,
-                fuel_consumption=fuel_consumption,
                 stream_velocity=rocket_stream_velocity,
                 acceleration=acceleration,
             )
@@ -140,16 +107,21 @@ def page() -> None:
             results = st.empty()
             telemetry_charts(rockets, EARTH_MASS, EARTH_RADIUS)
 
-            status, warning = results.columns(2)
+            if is_astronaut_dead(rockets):
+                status, warning = results.columns(2)
+                warning.warning("The astronaut is dead. Try not to exceed 10G overload.")
+            else:
+                status = results.empty()
+
             with status.container(border=True):
                 if rockets and did_rocket_left_the_planet(rockets[-1], EARTH_MASS):
                     st.markdown("You have successfully escaped Earth's gravitation!")
                 else:
                     st.markdown("You have not reached the speed to overcome gravitation.")
 
-            show_astronaut_status(rockets, warning)
         case FlightStage.SPACE:
             ...
+
         case FlightStage.MARS:
             planet = mars_shape(x=0, y=0)
             rocket_shape_at = partial(rocket_shape, x=0, angle=0, size=MARS_RADIUS / 100)
@@ -158,19 +130,18 @@ def page() -> None:
                 velocity=0,
                 netto_mass=netto_mass,
                 fuel_mass=1,  # Magic!
-                fuel_consumption=fuel_consumption,
                 stream_velocity=rocket_stream_velocity * -1,  # A little bit more magic.
                 acceleration=acceleration,
             )
 
-            # TODO: There is no control under the increasing rocket mass. Remake the output (and input)
-            # TODO: Second mode does not work. Deprecate it completely?
             calculator = RocketFlightCalculator(
                 rocket=initial_rocket,
                 flight_equation=flight_equations[flight_equation_type],
                 planet_mass=MARS_MASS,
             )
-            rockets: list[Rocket] = list(simulate_flight(calculator, SAMLING_DELTA))
+            rockets: list[Rocket] = list(
+                filter(lambda r: r.mass <= initial_mass, simulate_flight(calculator, SAMLING_DELTA))
+            )
 
             figure = render_animation(rockets[::-1], rocket_shape_at, planet)
             st.plotly_chart(figure, key="animation")
@@ -178,16 +149,20 @@ def page() -> None:
             results = st.empty()
             telemetry_charts(rockets[::-1], MARS_MASS, MARS_RADIUS)
 
-            status, warning = results.columns(2)
+            if is_astronaut_dead(rockets):
+                status, warning = results.columns(2)
+                warning.warning("The astronaut is dead. Try not to exceed 10G overload.")
+            else:
+                status = results.empty()
+
             with status.container(border=True):
                 if rockets and did_rocket_left_the_planet(rockets[-1], MARS_MASS):
                     st.markdown(
-                        f"You have to turn on engine at {(rockets[-1].y - MARS_RADIUS) / 1000:.01f}km above to successfully land on Mars."
+                        f"You have to turn on engine at {(rockets[-1].y - MARS_RADIUS) / 1000:.01f}km above to successfully land on Mars. You should have only {rockets[-1].fuel_mass / fuel_mass * 100:.02f}% ({rockets[-1].fuel_mass:.02f} ton) of a fuel tank to be full."
                     )
                 else:
                     st.markdown("You probably have been smashed into pieces.")
 
-            show_astronaut_status(rockets, warning)
         case None:
             st.warning("Choose one of the stages to simulate.")
 
@@ -196,12 +171,12 @@ def telemetry_charts(rockets: Sequence[Rocket], planet_mass: float, planet_radiu
     st.subheader("Rocket Metrics Over Time")
     col1, col2 = st.columns(2)
     with col1:
-        st.write("**Velocity (m/s)**")
+        st.write("**Velocity (km/s)**")
         velocity_chart = st.empty()
-        st.write("**Mass (kg)**")
+        st.write("**Mass (ton)**")
         mass_chart = st.empty()
     with col2:
-        st.write("**Y Position (m)**")
+        st.write("**Y Position (km)**")
         y_chart = st.empty()
         st.write("**Acceleration (g)**")
         acceleration_chart = st.empty()
@@ -210,8 +185,3 @@ def telemetry_charts(rockets: Sequence[Rocket], planet_mass: float, planet_radiu
     plot_mass(mass_chart, rockets)
     plot_y_position(y_chart, rockets, planet_radius)
     plot_acceleration(acceleration_chart, rockets)
-
-
-def show_astronaut_status(rockets: list[Rocket], warning: DeltaGenerator) -> None:
-    if is_astronaut_dead(rockets):
-        warning.warning("The astronaut is dead. Try not to exceed 10G overload.")
