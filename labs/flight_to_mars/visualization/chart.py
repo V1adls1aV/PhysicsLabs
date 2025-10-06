@@ -84,6 +84,30 @@ def plot_y_position(
     container.line_chart({"Time (s)": time, "Height (km)": y_values}, x="Time (s)", y="Height (km)")
 
 
+def plot_distance_to_target_chart(
+    container: DeltaGenerator,
+    rockets: Sequence[Rocket],
+    target_distance: float,
+    *,
+    in_days: bool = False,
+) -> None:
+    """Plot distance to target chart with all data at once."""
+    if not rockets:
+        return
+
+    time = _time_axis(rockets)
+    y_values = [(target_distance - r.x) / 1000 for r in rockets]
+    time_label = "Time (s)"
+    if in_days:
+        time = [t / 60 / 60 / 24 for t in time]
+        time_label = "Time (days)"
+    container.line_chart(
+        {time_label: time, "Distance to Target (km)": y_values},
+        x=time_label,
+        y="Distance to Target (km)",
+    )
+
+
 def plot_acceleration(
     container: DeltaGenerator, rockets: Sequence[Rocket], *, in_days: bool = False
 ) -> None:

@@ -1,3 +1,5 @@
+# ruff: noqa: N806
+
 from collections.abc import Sequence
 from functools import partial
 from math import pi
@@ -13,13 +15,14 @@ from labs.flight_to_mars.stage.planet.calculator import RocketFlightCalculator
 from labs.flight_to_mars.stage.planet.criteria import did_rocket_left_the_planet
 from labs.flight_to_mars.stage.planet.simulation import simulate_flight
 from labs.flight_to_mars.stage.space.calculator import RocketInterplanetaryFlightCalculator
-from labs.flight_to_mars.stage.space.criteria import does_reach_the_target
+from labs.flight_to_mars.stage.space.criteria import did_reach_the_target
 from labs.flight_to_mars.stage.space.equation import (
     interplanetary_engine_off_equation,
 )
 from labs.flight_to_mars.stage.space.simulation import simulate_interplanetary_flight
 from labs.flight_to_mars.visualization.chart import (
     plot_acceleration,
+    plot_distance_to_target_chart,
     plot_mass,
     plot_velocity,
     plot_y_position,
@@ -50,7 +53,7 @@ __all__ = ["page"]
 
 
 def page() -> None:
-    SAMLING_DELTA = 1  # noqa: N806
+    SAMLING_DELTA = 1
     st.session_state.sampling_delta = SAMLING_DELTA
     st.set_page_config(page_title="Flight to Mars 🚀", page_icon="🚀", layout="wide")
 
@@ -64,7 +67,7 @@ def page() -> None:
             show_real_size: bool = st.checkbox("Show real planets size")
 
             initial_velocity: float = 1000 * st.slider(
-                "Initial velocity (km/s)", min_value=10.0, max_value=23.5, value=20.0, step=0.1
+                "Initial velocity (km/s)", min_value=10.0, max_value=23.5, value=21.91, step=0.01
             )
         else:
             initial_mass: float = 1000 * st.slider(
@@ -139,6 +142,7 @@ def page() -> None:
             )
             rockets: list[Rocket] = list(simulate_flight(calculator, SAMLING_DELTA))
 
+            # Швабры держат потолок
             if not rockets:
                 st.rerun()
 
@@ -165,7 +169,7 @@ def page() -> None:
         #################################################################################
 
         case FlightStage.SPACE:
-            SAMLING_DELTA = 60 * 60 * 24  # noqa: N806
+            SAMLING_DELTA = 60 * 60 * 1  # one hour
             st.session_state.sampling_delta = SAMLING_DELTA
 
             sun_radius = SUN_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 20
@@ -190,8 +194,11 @@ def page() -> None:
                 semi_minor=SUN_MARS_DISTANCE,
             )
 
+            APROXIMATE_TAKE_OFF_HEIGHT = 2_336_000
+            APROXIMATE_LANDING_HEIGHT  =   555_000  # fmt: skip
+            TARGET_X = EARTH_MARS_DISTANCE - MARS_RADIUS - APROXIMATE_LANDING_HEIGHT
             initial_rocket = Rocket(
-                x=EARTH_RADIUS * 1.1,
+                x=EARTH_RADIUS + APROXIMATE_TAKE_OFF_HEIGHT,
                 y=0,
                 velocity=initial_velocity,
                 netto_mass=0,
@@ -199,16 +206,18 @@ def page() -> None:
                 stream_velocity=0,
                 acceleration=0,
             )
+
             rockets = list(
                 simulate_interplanetary_flight(
                     RocketInterplanetaryFlightCalculator(
                         initial_rocket, interplanetary_engine_off_equation
                     ),
-                    sampling_delta=60 * 60 * 24,
-                    target_x=EARTH_MARS_DISTANCE,
+                    sampling_delta=SAMLING_DELTA,
+                    target_x=TARGET_X,
                 )
             )
 
+            # Швабры держат потолок
             if not rockets:
                 st.rerun()
 
@@ -219,17 +228,19 @@ def page() -> None:
 
             status = st.empty()
             with status.container(border=True):
-                if does_reach_the_target(EARTH_MARS_DISTANCE, rockets[-1]):
+                if did_reach_the_target(TARGET_X, rockets[-1]):
                     st.markdown("Succesfully reached the Mars!")
                 else:
                     st.markdown("You failed to maintain enough speed to reach the Mars.")
 
             st.subheader("Rocket Metrics Over Time")
             col1, col2 = st.columns(2)
+            col1.write("**Distance to Target (km)**")
+            plot_distance_to_target_chart(col1, rockets, TARGET_X, in_days=True)
             col1.write("**Velocity (km/s)**")
+            plot_velocity(col1, rockets[:-1], in_days=True)
             col2.write("**Acceleration (g)**")
-            plot_velocity(col1, rockets, in_days=True)
-            plot_acceleration(col2, rockets, in_days=True)
+            plot_acceleration(col2, rockets[:-1], in_days=True)
 
         #################################################################################
 
@@ -254,6 +265,7 @@ def page() -> None:
             raw_rockets: list[Rocket] = list(simulate_flight(calculator, SAMLING_DELTA))
             rockets: list[Rocket] = list(filter(lambda r: r.mass <= initial_mass, raw_rockets))
 
+            # Швабры держат потолок
             if not rockets:
                 st.rerun()
 
