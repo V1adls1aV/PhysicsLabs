@@ -2,6 +2,7 @@ from collections.abc import Callable
 
 from scipy.integrate import ode
 
+from labs.flight_to_mars.model.planet import Planet
 from labs.flight_to_mars.model.rocket import Rocket
 
 
@@ -9,12 +10,13 @@ class RocketInterplanetaryFlightCalculator:
     def __init__(
         self,
         rocket: Rocket,
-        flight_equation: Callable[[float, float, float, float], list[float]],
+        flight_equation: Callable[[float, float, float, float, list[Planet]], list[float]],
+        planets: list[Planet],
     ) -> None:
-        x0 = [rocket.x, rocket.y, rocket.velocity_x, rocket.velocity_y]
+        x0 = (rocket.x, rocket.y, rocket.velocity_x, rocket.velocity_y)
         self.rocket = rocket
         self.equation = (
-            ode(f=lambda _, v: flight_equation(*v))
+            ode(f=lambda _, v: flight_equation(v[0], v[1], v[2], v[3], planets))
             .set_integrator("dopri5")
             .set_initial_value(x0, 0)
         )

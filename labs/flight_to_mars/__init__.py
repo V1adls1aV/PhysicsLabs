@@ -1,5 +1,4 @@
 # ruff: noqa: N806
-
 from collections.abc import Sequence
 from functools import partial
 from math import pi
@@ -7,6 +6,7 @@ from math import pi
 import streamlit as st
 
 from labs.flight_to_mars.model.flight import FlightEquationType
+from labs.flight_to_mars.model.planet import Planet
 from labs.flight_to_mars.model.rocket import Rocket
 from labs.flight_to_mars.model.stage import FlightStage
 from labs.flight_to_mars.stage.criteria import is_astronaut_dead
@@ -44,6 +44,7 @@ from labs.model.constant import (
     MAX_HUMANLY_VIABLE_OVERLOAD,
     SUN_EARTH_DISTANCE,
     SUN_MARS_DISTANCE,
+    SUN_MASS,
     SUN_RADIUS,
     G,
     g,
@@ -171,16 +172,20 @@ def page() -> None:
         #################################################################################
 
         case FlightStage.SPACE:
-            SAMLING_DELTA = 60 * 60 * 24  # one day
+            SAMLING_DELTA = 60 * 60 * 1  # one hour
             st.session_state.sampling_delta = SAMLING_DELTA
 
             sun_radius = SUN_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 20
             earth_radius = EARTH_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 50
             mars_radius = MARS_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 65
 
-            sun = sun_shape(x=-SUN_EARTH_DISTANCE, y=0, radius=sun_radius)
-            earth = earth_shape(x=0, y=0, radius=earth_radius)
-            mars = mars_shape(x=EARTH_MARS_DISTANCE, y=0, radius=mars_radius)
+            earth = Planet(x=0, y=0, mass=EARTH_MASS)
+            mars = Planet(x=EARTH_MARS_DISTANCE, y=0, mass=MARS_MASS)
+            sun = Planet(x=-SUN_EARTH_DISTANCE, y=0, mass=SUN_MASS)
+
+            sun_shape_at = sun_shape(x=-SUN_EARTH_DISTANCE, y=0, radius=sun_radius)
+            earth_shape_at = earth_shape(x=0, y=0, radius=earth_radius)
+            mars_shape_at = mars_shape(x=EARTH_MARS_DISTANCE, y=0, radius=mars_radius)
             rocket_shape_at = partial(rocket_shape, angle=-pi / 2, size=earth_radius / 3)
 
             earth_orbit = orbit_shape(
@@ -214,21 +219,22 @@ def page() -> None:
             rockets = list(
                 simulate_interplanetary_flight(
                     RocketInterplanetaryFlightCalculator(
-                        initial_rocket, interplanetary_engine_off_equation
+                        initial_rocket, interplanetary_engine_off_equation, [earth, mars, sun]
                     ),
                     sampling_delta=SAMLING_DELTA,
                     target_x=TARGET_X,
                 )
             )
 
-            st.write(rockets)
-
             # Швабры держат потолок
             if not rockets:
                 st.rerun()
 
             figure = render_animation(
-                rockets, rocket_shape_at, [earth, mars, sun], [earth_orbit, mars_orbit]
+                rockets,
+                rocket_shape_at,
+                [earth_shape_at, mars_shape_at, sun_shape_at],
+                [earth_orbit, mars_orbit],
             )
             st.plotly_chart(figure, key="animation")
 
@@ -248,9 +254,10 @@ def page() -> None:
             col1.write("**Distance to Target (km)**")
             plot_distance_to_target_chart(col1, rockets, TARGET_X, in_days=True)
 
-            rockets_before_landing = [rocket for rocket in rockets if rocket.acceleration <= 0]
-            col2.write("**Acceleration Before Landing (g)**")
-            plot_acceleration(col2, rockets_before_landing, in_days=True)
+            rockets_before_landing = [rocket for rocket in rockets if rocket.acceleration_x <= 0]
+            if rockets_before_landing:
+                col2.write("**Acceleration Before Landing (g)**")
+                plot_acceleration(col2, rockets_before_landing, in_days=True)
 
             col2.write("**Pure Acceleration (g)**")
             plot_acceleration(col2, rockets[:-1], in_days=True)

@@ -1,11 +1,6 @@
-from labs.model.constant import (
-    EARTH_MARS_DISTANCE,
-    EARTH_MASS,
-    MARS_MASS,
-    SUN_EARTH_DISTANCE,
-    SUN_MASS,
-    G,
-)
+from __future__ import annotations
+
+from labs.flight_to_mars.model.planet import Planet
 
 
 def interplanetary_engine_off_equation(
@@ -13,21 +8,13 @@ def interplanetary_engine_off_equation(
     y: float,
     velocity_x: float,
     velocity_y: float,
+    planets: list[Planet],
 ) -> list[float]:
     dxdt = velocity_x
     dydt = velocity_y
-    dvxdt = mars_g(x) - earth_g(x) - sun_g(x)
-    dvydt = mars_g(y) - earth_g(y) - sun_g(y)
+
+    planet_gravities = [planet.calculate_gravity(x, y) for planet in planets]
+
+    dvxdt = sum(gravity.x for gravity in planet_gravities)
+    dvydt = sum(gravity.y for gravity in planet_gravities)
     return [dxdt, dydt, dvxdt, dvydt]
-
-
-def earth_g(x: float) -> float:
-    return G * EARTH_MASS / (x * x)
-
-
-def mars_g(x: float) -> float:
-    return G * MARS_MASS / (EARTH_MARS_DISTANCE - x) ** 2
-
-
-def sun_g(x: float) -> float:
-    return G * SUN_MASS / (SUN_EARTH_DISTANCE + x) ** 2
