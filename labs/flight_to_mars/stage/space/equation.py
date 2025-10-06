@@ -18,7 +18,6 @@ def interplanetary_engine_off_equation(
 
 
 def earth_g_by_x(x: float) -> float:
-    return 0
     return G * EARTH_MASS / (x * x)
 
 

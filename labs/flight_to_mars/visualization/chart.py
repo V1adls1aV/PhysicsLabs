@@ -112,20 +112,16 @@ def plot_acceleration(
     container: DeltaGenerator, rockets: Sequence[Rocket], *, in_days: bool = False
 ) -> None:
     """Plot acceleration chart with all data at once."""
-    if len(rockets) < 2:
+    if not rockets:
         return
 
-    sampling_delta = float(st.session_state.get("sampling_delta", 1))
-    time = _time_axis(rockets)[:-1]  # Exclude last point since we need i+1
+    time = _time_axis(rockets)
     time_label = "Time (s)"
     if in_days:
         time = [t / 60 / 60 / 24 for t in time]
         time_label = "Time (days)"
 
-    acceleration = [
-        abs((rockets[i + 1].velocity - rockets[i].velocity) / sampling_delta / g)
-        for i in range(len(rockets) - 1)
-    ]
+    acceleration = [abs(rockets[i].acceleration) / g for i in range(len(rockets))]
     container.line_chart(
         {time_label: time, "Acceleration (g)": acceleration},
         x=time_label,

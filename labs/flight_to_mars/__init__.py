@@ -67,7 +67,7 @@ def page() -> None:
             show_real_size: bool = st.checkbox("Show real planets size")
 
             initial_velocity: float = 1000 * st.slider(
-                "Initial velocity (km/s)", min_value=10.0, max_value=23.5, value=21.91, step=0.01
+                "Initial velocity (km/s)", min_value=10.0, max_value=23.5, value=21.92, step=0.01
             )
         else:
             initial_mass: float = 1000 * st.slider(
@@ -235,11 +235,18 @@ def page() -> None:
 
             st.subheader("Rocket Metrics Over Time")
             col1, col2 = st.columns(2)
-            col1.write("**Distance to Target (km)**")
-            plot_distance_to_target_chart(col1, rockets, TARGET_X, in_days=True)
+
             col1.write("**Velocity (km/s)**")
             plot_velocity(col1, rockets[:-1], in_days=True)
-            col2.write("**Acceleration (g)**")
+
+            col1.write("**Distance to Target (km)**")
+            plot_distance_to_target_chart(col1, rockets, TARGET_X, in_days=True)
+
+            rockets_before_landing = [rocket for rocket in rockets if rocket.acceleration <= 0]
+            col2.write("**Acceleration Before Landing (g)**")
+            plot_acceleration(col2, rockets_before_landing, in_days=True)
+
+            col2.write("**Pure Acceleration (g)**")
             plot_acceleration(col2, rockets[:-1], in_days=True)
 
         #################################################################################
