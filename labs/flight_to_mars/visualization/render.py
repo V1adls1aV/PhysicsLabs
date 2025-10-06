@@ -56,7 +56,7 @@ def render_animation(
                         {
                             "label": "Play",
                             "method": "animate",
-                            "args": [None, {"frame": {"duration": 5}}],
+                            "args": [None, {"frame": {"duration": 3}}],
                         },
                     ],
                 }

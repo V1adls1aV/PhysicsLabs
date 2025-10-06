@@ -11,12 +11,12 @@ def is_astronaut_dead(rocket_logs: list[Rocket]) -> bool:
     return False
 
 
-def get_is_astronaut_dead_from_hunger_checker() -> Callable[[], bool]:
-    days_count = 0
+def get_is_astronaut_dead_from_hunger_checker(sampling_delta: float) -> Callable[[], bool]:
+    time = 0
 
     def is_astronaut_dead_from_hunger() -> bool:
-        nonlocal days_count
-        days_count += 1
-        return days_count > HUMAN_EXPIRATION_TIME
+        nonlocal time, sampling_delta
+        time += sampling_delta
+        return time > HUMAN_EXPIRATION_TIME
 
     return is_astronaut_dead_from_hunger

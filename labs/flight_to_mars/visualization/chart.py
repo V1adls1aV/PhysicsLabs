@@ -5,9 +5,10 @@ from collections.abc import Sequence
 import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 
+from labs.flight_to_mars.model.planet import Planet, norm
 from labs.flight_to_mars.model.rocket import Rocket
 from labs.flight_to_mars.stage.planet.criteria import get_planet_escape_velocity
-from labs.model.constant import g
+from labs.model.constant import DAY, g
 
 
 def _time_axis(rockets: Sequence[Rocket]) -> list[float]:
@@ -30,7 +31,7 @@ def plot_velocity(
     time = _time_axis(rockets)
     time_label = "Time (s)"
     if in_days:
-        time = [t / 60 / 60 / 24 for t in time]
+        time = [t / DAY for t in time]
         time_label = "Time (days)"
 
     velocity = [r.velocity / 1000 for r in rockets]
@@ -87,7 +88,7 @@ def plot_y_position(
 def plot_distance_to_target_chart(
     container: DeltaGenerator,
     rockets: Sequence[Rocket],
-    target_distance: float,
+    target_planet: Planet,
     *,
     in_days: bool = False,
 ) -> None:
@@ -96,13 +97,15 @@ def plot_distance_to_target_chart(
         return
 
     time = _time_axis(rockets)
-    y_values = [(target_distance - r.x) / 1000 for r in rockets]
+    distance_to_target = [
+        norm(target_planet.x - r.x, target_planet.y - r.y) / 1000 for r in rockets
+    ]
     time_label = "Time (s)"
     if in_days:
-        time = [t / 60 / 60 / 24 for t in time]
+        time = [t / DAY for t in time]
         time_label = "Time (days)"
     container.line_chart(
-        {time_label: time, "Distance to Target (km)": y_values},
+        {time_label: time, "Distance to Target (km)": distance_to_target},
         x=time_label,
         y="Distance to Target (km)",
     )
@@ -118,7 +121,7 @@ def plot_acceleration(
     time = _time_axis(rockets)
     time_label = "Time (s)"
     if in_days:
-        time = [t / 60 / 60 / 24 for t in time]
+        time = [t / DAY for t in time]
         time_label = "Time (days)"
 
     acceleration = [abs(rockets[i].acceleration / g) for i in range(len(rockets))]

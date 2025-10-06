@@ -15,7 +15,7 @@ from labs.flight_to_mars.stage.planet.calculator import RocketFlightCalculator
 from labs.flight_to_mars.stage.planet.criteria import did_rocket_left_the_planet
 from labs.flight_to_mars.stage.planet.simulation import simulate_flight
 from labs.flight_to_mars.stage.space.calculator import RocketInterplanetaryFlightCalculator
-from labs.flight_to_mars.stage.space.criteria import did_reach_the_target
+from labs.flight_to_mars.stage.space.criteria import did_reach_planet
 from labs.flight_to_mars.stage.space.equation import (
     interplanetary_engine_off_equation,
 )
@@ -36,8 +36,10 @@ from labs.flight_to_mars.visualization.entity import (
 )
 from labs.flight_to_mars.visualization.render import render_animation
 from labs.model.constant import (
+    DAY,
     EARTH_MARS_DISTANCE,
     EARTH_MASS,
+    EARTH_ORBITAL_VELOCITY,
     EARTH_RADIUS,
     HUMAN_EXPIRATION_TIME,
     MARS_MASS,
@@ -56,22 +58,31 @@ __all__ = ["page"]
 
 
 def page() -> None:
-    DAY = 24 * 60 * 60
     SAMLING_DELTA = 1
     st.session_state.sampling_delta = SAMLING_DELTA
     st.set_page_config(page_title="Flight to Mars 🚀", page_icon="🚀", layout="wide")
 
     with st.sidebar:
         flight_stage: FlightStage | None = st.segmented_control(
-            "Flight stage", default=FlightStage.EARTH, options=list(FlightStage)
+            "Flight stage", default=FlightStage.SPACE, options=list(FlightStage)
         )
         flight_equation_type = FlightEquationType.FIXED_ACCELERATION
 
         if flight_stage == FlightStage.SPACE:
             show_real_size: bool = st.checkbox("Show real planets size")
 
-            initial_velocity: float = 1000 * st.slider(
-                "Initial velocity (km/s)", min_value=10.0, max_value=23.5, value=21.92, step=0.01
+            relative_rocket_velocity_norm: float = 1000 * st.slider(
+                "Relative initial velocity (km/s)",
+                min_value=5.0,
+                max_value=20.0,
+                value=15.0,
+                step=0.01,
+            )
+
+            rocket_angle = math.radians(
+                st.slider(
+                    "Start angle, deg", min_value=-180.0, max_value=180.0, value=0.0, step=0.1
+                )
             )
 
             earth_position: Vector2D = Vector2D.from_polar(
@@ -81,7 +92,7 @@ def page() -> None:
                         "Earth position, deg",
                         min_value=-180.0,
                         max_value=180.0,
-                        value=0.0,
+                        value=-90.0,
                         step=0.1,
                     )
                 ),
@@ -90,11 +101,16 @@ def page() -> None:
             def relavite_position(v: Vector2D) -> Vector2D:
                 return v - earth_position + Vector2D(SUN_EARTH_DISTANCE, 0)
 
-            rocket_angle = math.radians(
-                st.slider(
-                    "Start angle, deg", min_value=-180.0, max_value=180.0, value=0.0, step=0.1
-                )
+            relative_rocket_velocity = Vector2D.from_polar(
+                relative_rocket_velocity_norm, angle=rocket_angle
             )
+            earth_velocity = Vector2D.from_polar(
+                EARTH_ORBITAL_VELOCITY, earth_position.angle + math.pi / 2
+            )
+            rocket_velocity = relative_rocket_velocity + earth_velocity
+
+            with st.expander("Calculated parameters", expanded=True):
+                st.markdown(f"Initial velocity: {rocket_velocity.norm / 1000:.02f} km/s")
         else:
             initial_mass: float = 1000 * st.slider(
                 "Initial mass, ton",
@@ -197,18 +213,18 @@ def page() -> None:
         #################################################################################
 
         case FlightStage.SPACE:
-            SAMLING_DELTA = 60 * 60 * 1  # one hour
+            SAMLING_DELTA = 60 * 60 * 12  # 12 hours
             st.session_state.sampling_delta = SAMLING_DELTA
 
             sun_radius = SUN_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 20
             earth_radius = EARTH_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 50
             mars_radius = MARS_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 65
 
-            earth = Planet(x=0, y=0, mass=EARTH_MASS)
+            earth = Planet(x=0, y=0, mass=EARTH_MASS, radius=EARTH_RADIUS)
             mars_position = relavite_position(Vector2D(EARTH_MARS_DISTANCE, 0))
-            mars = Planet(x=mars_position.x, y=mars_position.y, mass=MARS_MASS)
+            mars = Planet(x=mars_position.x, y=mars_position.y, mass=MARS_MASS, radius=MARS_RADIUS)
             sun_position = relavite_position(Vector2D(-SUN_EARTH_DISTANCE, 0))
-            sun = Planet(x=sun_position.x, y=sun_position.y, mass=SUN_MASS)
+            sun = Planet(x=sun_position.x, y=sun_position.y, mass=SUN_MASS, radius=SUN_RADIUS)
 
             sun_shape_at = sun_shape(x=sun.x, y=sun.y, radius=sun_radius)
             earth_shape_at = earth_shape(x=earth.x, y=earth.y, radius=earth_radius)
@@ -226,13 +242,10 @@ def page() -> None:
             )
 
             APROXIMATE_TAKE_OFF_HEIGHT = 2_336_000
-            APROXIMATE_LANDING_HEIGHT  =   555_000  # fmt: skip
-            TARGET_X = EARTH_MARS_DISTANCE - MARS_RADIUS - APROXIMATE_LANDING_HEIGHT
 
             rocket_start_point = Vector2D.from_polar(
                 EARTH_RADIUS + APROXIMATE_TAKE_OFF_HEIGHT, angle=rocket_angle
             )
-            rocket_velocity = Vector2D.from_polar(initial_velocity, angle=rocket_angle)
             rocket_shape_at = partial(rocket_shape, size=earth_radius / 3)
 
             initial_rocket = Rocket(
@@ -253,7 +266,7 @@ def page() -> None:
                         initial_rocket, interplanetary_engine_off_equation, [earth, mars, sun]
                     ),
                     sampling_delta=SAMLING_DELTA,
-                    target_x=TARGET_X,
+                    target_planet=mars,
                 )
             )
 
@@ -271,7 +284,7 @@ def page() -> None:
 
             status = st.empty()
             with status.container(border=True):
-                if did_reach_the_target(TARGET_X, rockets[-1]):
+                if did_reach_planet(mars, rockets[-1]):
                     st.markdown("Succesfully reached the Mars!")
                 elif len(rockets) * SAMLING_DELTA > HUMAN_EXPIRATION_TIME:
                     st.markdown(
@@ -287,7 +300,7 @@ def page() -> None:
             plot_velocity(col1, rockets[:-1], in_days=True)
 
             col1.write("**Distance to Target (km)**")
-            plot_distance_to_target_chart(col1, rockets, TARGET_X, in_days=True)
+            plot_distance_to_target_chart(col1, rockets, mars, in_days=True)
 
             rockets_before_landing = [rocket for rocket in rockets if rocket.acceleration_x <= 0]
             if rockets_before_landing:

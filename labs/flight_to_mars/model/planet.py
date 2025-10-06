@@ -10,6 +10,7 @@ class Planet:
     x: float
     y: float
     mass: float
+    radius: float
 
     def calculate_gravity(self, x: float, y: float) -> Vector2D:
         """Calculate gravitational force components from planet to point."""
