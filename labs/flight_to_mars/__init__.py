@@ -2,7 +2,6 @@
 import math
 from collections.abc import Sequence
 from functools import partial
-from math import pi
 
 import streamlit as st
 
@@ -40,6 +39,7 @@ from labs.model.constant import (
     EARTH_MARS_DISTANCE,
     EARTH_MASS,
     EARTH_RADIUS,
+    HUMAN_EXPIRATION_TIME,
     MARS_MASS,
     MARS_RADIUS,
     MAX_HUMANLY_VIABLE_OVERLOAD,
@@ -56,6 +56,7 @@ __all__ = ["page"]
 
 
 def page() -> None:
+    DAY = 24 * 60 * 60
     SAMLING_DELTA = 1
     st.session_state.sampling_delta = SAMLING_DELTA
     st.set_page_config(page_title="Flight to Mars 🚀", page_icon="🚀", layout="wide")
@@ -89,14 +90,11 @@ def page() -> None:
             def relavite_position(v: Vector2D) -> Vector2D:
                 return v - earth_position + Vector2D(SUN_EARTH_DISTANCE, 0)
 
-            # start_angle: Vector2D = Vector2D.from_polar(
-            #     EARTH_RADIUS,
-            #     math.radians(
-            #         st.slider(
-            #             "Start angle, deg", min_value=-180.0, max_value=180.0, value=0.0, step=0.1
-            #         )
-            #     ),
-            # )
+            rocket_angle = math.radians(
+                st.slider(
+                    "Start angle, deg", min_value=-180.0, max_value=180.0, value=0.0, step=0.1
+                )
+            )
         else:
             initial_mass: float = 1000 * st.slider(
                 "Initial mass, ton",
@@ -153,7 +151,7 @@ def page() -> None:
     match flight_stage:
         case FlightStage.EARTH:
             planet = earth_shape(x=0, y=0)
-            rocket_shape_at = partial(rocket_shape, angle=0, size=EARTH_RADIUS / 100)
+            rocket_shape_at = partial(rocket_shape, size=EARTH_RADIUS / 100)
             initial_rocket = Rocket(
                 x=0,
                 y=EARTH_RADIUS,
@@ -215,7 +213,6 @@ def page() -> None:
             sun_shape_at = sun_shape(x=sun.x, y=sun.y, radius=sun_radius)
             earth_shape_at = earth_shape(x=earth.x, y=earth.y, radius=earth_radius)
             mars_shape_at = mars_shape(x=mars.x, y=mars.y, radius=mars_radius)
-            rocket_shape_at = partial(rocket_shape, angle=-pi / 2, size=earth_radius / 3)
 
             earth_orbit = orbit_shape(
                 center=sun_position,
@@ -231,11 +228,18 @@ def page() -> None:
             APROXIMATE_TAKE_OFF_HEIGHT = 2_336_000
             APROXIMATE_LANDING_HEIGHT  =   555_000  # fmt: skip
             TARGET_X = EARTH_MARS_DISTANCE - MARS_RADIUS - APROXIMATE_LANDING_HEIGHT
+
+            rocket_start_point = Vector2D.from_polar(
+                EARTH_RADIUS + APROXIMATE_TAKE_OFF_HEIGHT, angle=rocket_angle
+            )
+            rocket_velocity = Vector2D.from_polar(initial_velocity, angle=rocket_angle)
+            rocket_shape_at = partial(rocket_shape, size=earth_radius / 3)
+
             initial_rocket = Rocket(
-                x=EARTH_RADIUS + APROXIMATE_TAKE_OFF_HEIGHT,
-                y=0,
-                velocity_x=initial_velocity,
-                velocity_y=0,
+                x=rocket_start_point.x,
+                y=rocket_start_point.y,
+                velocity_x=rocket_velocity.x,
+                velocity_y=rocket_velocity.y,
                 netto_mass=0,
                 fuel_mass=0,
                 stream_velocity=0,
@@ -269,6 +273,10 @@ def page() -> None:
             with status.container(border=True):
                 if did_reach_the_target(TARGET_X, rockets[-1]):
                     st.markdown("Succesfully reached the Mars!")
+                elif len(rockets) * SAMLING_DELTA > HUMAN_EXPIRATION_TIME:
+                    st.markdown(
+                        f"The astronaut is dead from hunger. Try not to exceed {HUMAN_EXPIRATION_TIME / DAY} days."
+                    )
                 else:
                     st.markdown("You failed to maintain enough speed to reach the Mars.")
 
@@ -293,7 +301,7 @@ def page() -> None:
 
         case FlightStage.MARS:
             planet = mars_shape(x=0, y=0)
-            rocket_shape_at = partial(rocket_shape, angle=0, size=MARS_RADIUS / 100)
+            rocket_shape_at = partial(rocket_shape, size=MARS_RADIUS / 100)
             initial_rocket = Rocket(
                 x=0,
                 y=MARS_RADIUS,

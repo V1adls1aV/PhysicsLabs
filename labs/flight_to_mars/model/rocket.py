@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 
 
@@ -27,3 +28,7 @@ class Rocket:
     @property
     def acceleration(self) -> float:
         return (self.acceleration_x**2 + self.acceleration_y**2) ** 0.5
+
+    @property
+    def angle(self) -> float:
+        return math.atan2(self.velocity_y, self.velocity_x)

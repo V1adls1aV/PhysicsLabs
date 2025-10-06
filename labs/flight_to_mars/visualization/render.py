@@ -10,7 +10,7 @@ from labs.flight_to_mars.model.rocket import Rocket
 
 def render_animation(
     rockets: Sequence[Rocket],
-    rocket_shape_at: Callable,
+    rocket_shape_at: Callable[..., ...],
     planets: list[dict[str, Any]],
     orbits: Iterable[dict[str, Any]] = (),
 ) -> go.Figure:
@@ -25,7 +25,7 @@ def render_animation(
 
     frames = []
     for i, rocket in enumerate(rockets):
-        rocket_shape = rocket_shape_at(x=rocket.x, y=rocket.y)
+        rocket_shape = rocket_shape_at(x=rocket.x, y=rocket.y, angle=rocket.angle)
         frames.append(
             go.Frame(
                 data=[],  # No data needed, shapes are in layout
@@ -36,7 +36,9 @@ def render_animation(
 
     # Initial frame
     initial_rocket = rockets[0]
-    initial_rocket_shape = rocket_shape_at(x=initial_rocket.x, y=initial_rocket.y)
+    initial_rocket_shape = rocket_shape_at(
+        x=initial_rocket.x, y=initial_rocket.y, angle=initial_rocket.angle
+    )
 
     return go.Figure(
         data=[],  # No data needed, shapes are in layout

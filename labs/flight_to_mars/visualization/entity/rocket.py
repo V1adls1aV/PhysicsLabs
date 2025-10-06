@@ -15,6 +15,7 @@ def rocket_shape(
 
 
 def move_shape(shape: np.ndarray, x: float, y: float, angle: float) -> np.ndarray:
+    angle -= np.pi / 2
     cos, sin = np.cos(angle), np.sin(angle)
     rotation = np.array([[cos, -sin], [sin, cos]])
     return shape @ rotation.T + [x, y]

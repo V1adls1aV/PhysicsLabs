@@ -24,6 +24,9 @@ class RocketInterplanetaryFlightCalculator:
         self.previous_velocity_y = rocket.velocity_y
 
     def __call__(self, time_delta: float) -> Rocket:
+        if time_delta == 0:
+            return self.rocket
+
         x, y, velocity_x, velocity_y = self.equation.integrate(self.equation.t + time_delta)
         acceleration_x = (velocity_x - self.previous_velocity_x) / time_delta
         acceleration_y = (velocity_y - self.previous_velocity_y) / time_delta
