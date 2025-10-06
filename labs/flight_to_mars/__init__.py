@@ -1,4 +1,5 @@
 # ruff: noqa: N806
+import math
 from collections.abc import Sequence
 from functools import partial
 from math import pi
@@ -49,6 +50,7 @@ from labs.model.constant import (
     G,
     g,
 )
+from labs.model.vector import Vector2D
 
 __all__ = ["page"]
 
@@ -70,6 +72,31 @@ def page() -> None:
             initial_velocity: float = 1000 * st.slider(
                 "Initial velocity (km/s)", min_value=10.0, max_value=23.5, value=21.92, step=0.01
             )
+
+            earth_position: Vector2D = Vector2D.from_polar(
+                SUN_EARTH_DISTANCE,
+                math.radians(
+                    st.slider(
+                        "Earth position, deg",
+                        min_value=-180.0,
+                        max_value=180.0,
+                        value=0.0,
+                        step=0.1,
+                    )
+                ),
+            )
+
+            def relavite_position(v: Vector2D) -> Vector2D:
+                return v - earth_position + Vector2D(SUN_EARTH_DISTANCE, 0)
+
+            # start_angle: Vector2D = Vector2D.from_polar(
+            #     EARTH_RADIUS,
+            #     math.radians(
+            #         st.slider(
+            #             "Start angle, deg", min_value=-180.0, max_value=180.0, value=0.0, step=0.1
+            #         )
+            #     ),
+            # )
         else:
             initial_mass: float = 1000 * st.slider(
                 "Initial mass, ton",
@@ -180,23 +207,23 @@ def page() -> None:
             mars_radius = MARS_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 65
 
             earth = Planet(x=0, y=0, mass=EARTH_MASS)
-            mars = Planet(x=EARTH_MARS_DISTANCE, y=0, mass=MARS_MASS)
-            sun = Planet(x=-SUN_EARTH_DISTANCE, y=0, mass=SUN_MASS)
+            mars_position = relavite_position(Vector2D(EARTH_MARS_DISTANCE, 0))
+            mars = Planet(x=mars_position.x, y=mars_position.y, mass=MARS_MASS)
+            sun_position = relavite_position(Vector2D(-SUN_EARTH_DISTANCE, 0))
+            sun = Planet(x=sun_position.x, y=sun_position.y, mass=SUN_MASS)
 
-            sun_shape_at = sun_shape(x=-SUN_EARTH_DISTANCE, y=0, radius=sun_radius)
-            earth_shape_at = earth_shape(x=0, y=0, radius=earth_radius)
-            mars_shape_at = mars_shape(x=EARTH_MARS_DISTANCE, y=0, radius=mars_radius)
+            sun_shape_at = sun_shape(x=sun.x, y=sun.y, radius=sun_radius)
+            earth_shape_at = earth_shape(x=earth.x, y=earth.y, radius=earth_radius)
+            mars_shape_at = mars_shape(x=mars.x, y=mars.y, radius=mars_radius)
             rocket_shape_at = partial(rocket_shape, angle=-pi / 2, size=earth_radius / 3)
 
             earth_orbit = orbit_shape(
-                center_x=-SUN_EARTH_DISTANCE,
-                center_y=0,
+                center=sun_position,
                 semi_major=SUN_EARTH_DISTANCE,
                 semi_minor=SUN_EARTH_DISTANCE,
             )
             mars_orbit = orbit_shape(
-                center_x=-SUN_EARTH_DISTANCE,
-                center_y=0,
+                center=sun_position,
                 semi_major=SUN_MARS_DISTANCE,
                 semi_minor=SUN_MARS_DISTANCE,
             )
