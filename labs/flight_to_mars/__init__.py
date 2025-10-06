@@ -15,7 +15,7 @@ from labs.flight_to_mars.stage.planet.calculator import RocketFlightCalculator
 from labs.flight_to_mars.stage.planet.criteria import did_rocket_left_the_planet
 from labs.flight_to_mars.stage.planet.simulation import simulate_flight
 from labs.flight_to_mars.stage.space.calculator import RocketInterplanetaryFlightCalculator
-from labs.flight_to_mars.stage.space.criteria import did_reach_planet
+from labs.flight_to_mars.stage.space.criteria import check_planet_reach
 from labs.flight_to_mars.stage.space.equation import (
     interplanetary_engine_off_equation,
 )
@@ -64,7 +64,7 @@ def page() -> None:
 
     with st.sidebar:
         flight_stage: FlightStage | None = st.segmented_control(
-            "Flight stage", default=FlightStage.SPACE, options=list(FlightStage)
+            "Flight stage", default=FlightStage.EARTH, options=list(FlightStage)
         )
         flight_equation_type = FlightEquationType.FIXED_ACCELERATION
 
@@ -75,13 +75,13 @@ def page() -> None:
                 "Relative initial velocity (km/s)",
                 min_value=5.0,
                 max_value=20.0,
-                value=15.0,
+                value=11.3,
                 step=0.01,
             )
 
             rocket_angle = math.radians(
                 st.slider(
-                    "Start angle, deg", min_value=-180.0, max_value=180.0, value=0.0, step=0.1
+                    "Start angle, deg", min_value=-30.0, max_value=30.0, value=-1.73, step=0.01
                 )
             )
 
@@ -92,7 +92,7 @@ def page() -> None:
                         "Earth position, deg",
                         min_value=-180.0,
                         max_value=180.0,
-                        value=-90.0,
+                        value=-50.0,
                         step=0.1,
                     )
                 ),
@@ -213,7 +213,7 @@ def page() -> None:
         #################################################################################
 
         case FlightStage.SPACE:
-            SAMLING_DELTA = 60 * 60 * 12  # 12 hours
+            SAMLING_DELTA = 60 * 60 * 4  # 4 hours
             st.session_state.sampling_delta = SAMLING_DELTA
 
             sun_radius = SUN_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 20
@@ -284,7 +284,7 @@ def page() -> None:
 
             status = st.empty()
             with status.container(border=True):
-                if did_reach_planet(mars, rockets[-1]):
+                if check_planet_reach(rockets[-2], rockets[-1], mars):
                     st.markdown("Succesfully reached the Mars!")
                 elif len(rockets) * SAMLING_DELTA > HUMAN_EXPIRATION_TIME:
                     st.markdown(

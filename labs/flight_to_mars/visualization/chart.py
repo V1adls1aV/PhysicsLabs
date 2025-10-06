@@ -109,6 +109,9 @@ def plot_distance_to_target_chart(
         x=time_label,
         y="Distance to Target (km)",
     )
+    container.markdown(
+        f"**Minimal** distance to target planet (radius): {(min(distance_to_target) * 1000 - target_planet.radius) / target_planet.radius:.02f}"
+    )
 
 
 def plot_acceleration(
