@@ -9,27 +9,32 @@ class RocketInterplanetaryFlightCalculator:
     def __init__(
         self,
         rocket: Rocket,
-        flight_equation: Callable[[float, float], list[float]],
+        flight_equation: Callable[[float, float, float, float], list[float]],
     ) -> None:
-        x0 = [rocket.x, rocket.velocity]
+        x0 = [rocket.x, rocket.y, rocket.velocity_x, rocket.velocity_y]
         self.rocket = rocket
-        self.equation_x = (
+        self.equation = (
             ode(f=lambda _, v: flight_equation(*v))
             .set_integrator("dopri5")
             .set_initial_value(x0, 0)
         )
-        self.previous_velocity = rocket.velocity
+        self.previous_velocity_x = rocket.velocity_x
+        self.previous_velocity_y = rocket.velocity_y
 
     def __call__(self, time_delta: float) -> Rocket:
-        x, velocity = self.equation_x.integrate(self.equation_x.t + time_delta)
-        acceleration = (velocity - self.previous_velocity) / time_delta
-        self.previous_velocity = velocity
+        x, y, velocity_x, velocity_y = self.equation.integrate(self.equation.t + time_delta)
+        acceleration_x = (velocity_x - self.previous_velocity_x) / time_delta
+        acceleration_y = (velocity_y - self.previous_velocity_y) / time_delta
+        self.previous_velocity_x = velocity_x
+        self.previous_velocity_y = velocity_y
         return Rocket(
             x=x,
-            y=self.rocket.y,
-            velocity=velocity,
-            fuel_mass=self.rocket.fuel_mass,
-            acceleration=acceleration,
+            y=y,
+            velocity_x=velocity_x,
+            velocity_y=velocity_y,
+            acceleration_x=acceleration_x,
+            acceleration_y=acceleration_y,
             stream_velocity=self.rocket.stream_velocity,
             netto_mass=self.rocket.netto_mass,
+            fuel_mass=self.rocket.fuel_mass,
         )

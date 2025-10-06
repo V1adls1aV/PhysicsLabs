@@ -21,18 +21,18 @@ def fixed_fuel_rate_flight_equation(
 
 
 def fixed_acceleration_flight_equation(
-    rocket: Rocket, planet_mass: float, y: float, velocity: float, mass: float
+    rocket: Rocket, planet_mass: float, y: float, velocity_y: float, mass: float
 ) -> list[float]:
-    if rocket.acceleration is None:
+    if rocket.acceleration_y is None:
         raise ValueError("Acceleration is not set")
 
     g = G * planet_mass / y**2
 
     if mass - rocket.netto_mass <= 0:
-        return [velocity, -g, 0]
+        return [velocity_y, -g, 0]
 
-    dhdt = velocity
-    dvdt = rocket.acceleration
-    dmdt = -(mass / rocket.stream_velocity) * (rocket.acceleration + g)
+    dhdt = velocity_y
+    dvdt = rocket.acceleration_y
+    dmdt = -(mass / rocket.stream_velocity) * (rocket.acceleration_y + g)
 
     return [dhdt, dvdt, dmdt]

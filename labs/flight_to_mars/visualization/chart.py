@@ -121,7 +121,7 @@ def plot_acceleration(
         time = [t / 60 / 60 / 24 for t in time]
         time_label = "Time (days)"
 
-    acceleration = [abs(rockets[i].acceleration) / g for i in range(len(rockets))]
+    acceleration = [abs(rockets[i].acceleration / g) for i in range(len(rockets))]
     container.line_chart(
         {time_label: time, "Acceleration (g)": acceleration},
         x=time_label,

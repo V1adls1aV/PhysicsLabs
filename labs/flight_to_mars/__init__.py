@@ -129,11 +129,13 @@ def page() -> None:
             initial_rocket = Rocket(
                 x=0,
                 y=EARTH_RADIUS,
-                velocity=0,
+                velocity_x=0,
+                velocity_y=0,
                 netto_mass=netto_mass,
                 fuel_mass=fuel_mass,
                 stream_velocity=rocket_stream_velocity,
-                acceleration=acceleration,
+                acceleration_x=0,
+                acceleration_y=acceleration,
             )
             calculator = RocketFlightCalculator(
                 rocket=initial_rocket,
@@ -169,7 +171,7 @@ def page() -> None:
         #################################################################################
 
         case FlightStage.SPACE:
-            SAMLING_DELTA = 60 * 60 * 1  # one hour
+            SAMLING_DELTA = 60 * 60 * 24  # one day
             st.session_state.sampling_delta = SAMLING_DELTA
 
             sun_radius = SUN_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 20
@@ -200,11 +202,13 @@ def page() -> None:
             initial_rocket = Rocket(
                 x=EARTH_RADIUS + APROXIMATE_TAKE_OFF_HEIGHT,
                 y=0,
-                velocity=initial_velocity,
+                velocity_x=initial_velocity,
+                velocity_y=0,
                 netto_mass=0,
                 fuel_mass=0,
                 stream_velocity=0,
-                acceleration=0,
+                acceleration_x=0,
+                acceleration_y=0,
             )
 
             rockets = list(
@@ -216,6 +220,8 @@ def page() -> None:
                     target_x=TARGET_X,
                 )
             )
+
+            st.write(rockets)
 
             # Швабры держат потолок
             if not rockets:
@@ -257,11 +263,13 @@ def page() -> None:
             initial_rocket = Rocket(
                 x=0,
                 y=MARS_RADIUS,
-                velocity=0,
+                velocity_x=0,
+                velocity_y=0,
                 netto_mass=netto_mass,
                 fuel_mass=1,  # Magic!
                 stream_velocity=rocket_stream_velocity * -1,  # A little bit more magic.
-                acceleration=acceleration,
+                acceleration_x=0,
+                acceleration_y=acceleration,
             )
 
             calculator = RocketFlightCalculator(

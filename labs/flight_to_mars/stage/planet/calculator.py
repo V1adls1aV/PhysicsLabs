@@ -12,7 +12,7 @@ class RocketFlightCalculator:
         planet_mass: float,
         flight_equation: Callable[[Rocket, float, float, float], list[float]],
     ) -> None:
-        y0 = [rocket.y, rocket.velocity, rocket.mass]
+        y0 = [rocket.y, rocket.velocity_y, rocket.mass]
         self.rocket = rocket
         self.planet_mass = planet_mass
         self.equation_y = (
@@ -22,10 +22,16 @@ class RocketFlightCalculator:
         )
 
     def __call__(self, time_delta: float) -> Rocket:
-        y, velocity, mass = self.equation_y.integrate(self.equation_y.t + time_delta)
-        return self.rocket.with_xyvf(
+        y, velocity_y, mass = self.equation_y.integrate(self.equation_y.t + time_delta)
+        return Rocket(
             x=self.rocket.x,
             y=y,
-            velocity=velocity,
+            velocity_x=self.rocket.velocity_x,
+            velocity_y=velocity_y,
+            netto_mass=self.rocket.netto_mass,
             fuel_mass=mass - self.rocket.netto_mass,
+            stream_velocity=self.rocket.stream_velocity,
+            fuel_consumption=None,
+            acceleration_x=self.rocket.acceleration_x,
+            acceleration_y=self.rocket.acceleration_y,
         )

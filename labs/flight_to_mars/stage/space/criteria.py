@@ -6,4 +6,4 @@ def did_reach_the_target(target_x: float, rocket: Rocket) -> bool:
 
 
 def did_turn_back(rocket: Rocket) -> bool:
-    return rocket.velocity < 0
+    return rocket.velocity_x < 0

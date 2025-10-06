@@ -10,20 +10,24 @@ from labs.model.constant import (
 
 def interplanetary_engine_off_equation(
     x: float,
-    velocity: float,
+    y: float,
+    velocity_x: float,
+    velocity_y: float,
 ) -> list[float]:
-    dhdt = velocity
-    dvdt = mars_g_by_x(x) - earth_g_by_x(x) - sun_g_by_x(x)
-    return [dhdt, dvdt]
+    dxdt = velocity_x
+    dydt = velocity_y
+    dvxdt = mars_g(x) - earth_g(x) - sun_g(x)
+    dvydt = mars_g(y) - earth_g(y) - sun_g(y)
+    return [dxdt, dydt, dvxdt, dvydt]
 
 
-def earth_g_by_x(x: float) -> float:
+def earth_g(x: float) -> float:
     return G * EARTH_MASS / (x * x)
 
 
-def mars_g_by_x(x: float) -> float:
+def mars_g(x: float) -> float:
     return G * MARS_MASS / (EARTH_MARS_DISTANCE - x) ** 2
 
 
-def sun_g_by_x(x: float) -> float:
+def sun_g(x: float) -> float:
     return G * SUN_MASS / (SUN_EARTH_DISTANCE + x) ** 2
