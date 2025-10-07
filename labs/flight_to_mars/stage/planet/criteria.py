@@ -4,7 +4,7 @@ from labs.flight_to_mars.model.rocket import Rocket
 from labs.model.constant import G
 
 
-def did_rocket_left_the_planet(rocket: Rocket, planet_mass: float) -> bool:
+def did_leave_the_planet(rocket: Rocket, planet_mass: float) -> bool:
     return rocket.velocity >= get_planet_escape_velocity(rocket.y, planet_mass)
 
 

@@ -43,7 +43,9 @@ def check_planet_reach(previous_rocket: Rocket, rocket: Rocket, planet: Planet) 
 def _line_intersects_circle(
     x1: float, y1: float, x2: float, y2: float, cx: float, cy: float, radius: float
 ) -> bool:
-    """Check if line segment from (x1,y1) to (x2,y2) intersects circle at (cx,cy) with given radius."""
+    """
+    Check if line segment from (x1,y1) to (x2,y2) intersects circle at (cx,cy) with given radius.
+    """
     # Vector from point 1 to point 2
     dx = x2 - x1
     dy = y2 - y1

@@ -39,6 +39,7 @@ def plot_velocity(
         escape_velocity = [get_planet_escape_velocity(r.y, planet_mass) / 1000 for r in rockets]
         velocity_gap = [e - v for v, e in zip(velocity, escape_velocity, strict=True)]
 
+    # noinspection PyUnboundLocalVariable
     container.line_chart(
         {
             time_label: time,
@@ -110,7 +111,8 @@ def plot_distance_to_target_chart(
         y="Distance to Target (km)",
     )
     container.markdown(
-        f"**Minimal** distance to target planet (radius): {(min(distance_to_target) * 1000 - target_planet.radius) / target_planet.radius:.02f}"
+        f"**Minimal** distance to target planet (radius): "
+        f"{(min(distance_to_target) * 1000 - target_planet.radius) / target_planet.radius:.02f}"
     )
 
 
