@@ -7,16 +7,16 @@ import streamlit as st
 
 from labs.model.constant import (
     DAY,
-    EARTH_MARS_DISTANCE,
     EARTH_MASS,
+    EARTH_ORBIT_RADIUS,
     EARTH_ORBITAL_VELOCITY,
     EARTH_RADIUS,
     HUMAN_EXPIRATION_TIME,
+    LEGACY_CRAP,
     MARS_MASS,
+    MARS_ORBIT_RADIUS,
     MARS_RADIUS,
     MAX_HUMANLY_VIABLE_OVERLOAD,
-    SUN_EARTH_DISTANCE,
-    SUN_MARS_DISTANCE,
     SUN_MASS,
     SUN_RADIUS,
     G,
@@ -78,12 +78,16 @@ def page() -> None:
 
             rocket_angle = math.radians(
                 st.slider(
-                    "Start angle, deg", min_value=-90.0, max_value=90.0, value=-1.73, step=0.01
+                    "Relative start angle, deg",
+                    min_value=-90.0,
+                    max_value=90.0,
+                    value=-1.73,
+                    step=0.01,
                 )
             )
 
             earth_position: Vector2D = Vector2D.from_polar(
-                SUN_EARTH_DISTANCE,
+                EARTH_ORBIT_RADIUS,
                 math.radians(
                     st.slider(
                         "Earth position, deg",
@@ -95,8 +99,10 @@ def page() -> None:
                 ),
             )
 
+            st.info("Earth position is set by a radius-vector angle from the Sun.")
+
             def relative_position(v: Vector2D) -> Vector2D:
-                return v - earth_position + Vector2D(SUN_EARTH_DISTANCE, 0)
+                return v - earth_position + Vector2D(EARTH_ORBIT_RADIUS, 0)
 
             relative_rocket_velocity = Vector2D.from_polar(
                 relative_rocket_velocity_norm, angle=rocket_angle
@@ -152,10 +158,18 @@ def page() -> None:
 
         with st.expander("Constants used"):
             st.html(f"G = {G} N·m<sup>2</sup>/kg<sup>2</sup>")
-            st.html(f"Earth mass = {EARTH_MASS:.3e} kg")
-            st.html(f"Earth radius = {EARTH_RADIUS} m")
-            st.html(f"Mars mass = {MARS_MASS:.3e} kg")
-            st.html(f"Mars radius = {MARS_RADIUS} m")
+
+            if flight_stage != FlightStage.MARS:
+                st.html(f"Earth mass = {EARTH_MASS:.3e} kg")
+                st.html(f"Earth radius = {EARTH_RADIUS} m")
+
+            if flight_stage == FlightStage.SPACE:
+                st.html(f"Sun mass = {SUN_MASS:.3e} kg")
+                st.html(f"Sun radius = {SUN_RADIUS} m")
+
+            if flight_stage != FlightStage.EARTH:
+                st.html(f"Mars mass = {MARS_MASS:.3e} kg")
+                st.html(f"Mars radius = {MARS_RADIUS} m")
 
     st.title("Flight to Mars 🚀")
 
@@ -217,14 +231,14 @@ def page() -> None:
             SAMPLING_DELTA = 60 * 60 * 4  # 4 hours
             st.session_state.sampling_delta = SAMPLING_DELTA
 
-            sun_radius = SUN_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 20
-            earth_radius = EARTH_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 50
-            mars_radius = MARS_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 65
+            sun_radius = SUN_RADIUS if show_real_size else EARTH_ORBIT_RADIUS / 20
+            earth_radius = EARTH_RADIUS if show_real_size else EARTH_ORBIT_RADIUS / 50
+            mars_radius = MARS_RADIUS if show_real_size else EARTH_ORBIT_RADIUS / 65
 
             earth = Planet(x=0, y=0, mass=EARTH_MASS, radius=EARTH_RADIUS)
-            mars_position = relative_position(Vector2D(EARTH_MARS_DISTANCE, 0))
+            mars_position = relative_position(Vector2D(LEGACY_CRAP, 0))
             mars = Planet(x=mars_position.x, y=mars_position.y, mass=MARS_MASS, radius=MARS_RADIUS)
-            sun_position = relative_position(Vector2D(-SUN_EARTH_DISTANCE, 0))
+            sun_position = relative_position(Vector2D(-EARTH_ORBIT_RADIUS, 0))
             sun = Planet(x=sun_position.x, y=sun_position.y, mass=SUN_MASS, radius=SUN_RADIUS)
 
             sun_shape_at = sun_shape(x=sun.x, y=sun.y, radius=sun_radius)
@@ -233,13 +247,13 @@ def page() -> None:
 
             earth_orbit = orbit_shape(
                 center=sun_position,
-                semi_major=SUN_EARTH_DISTANCE,
-                semi_minor=SUN_EARTH_DISTANCE,
+                semi_major=EARTH_ORBIT_RADIUS,
+                semi_minor=EARTH_ORBIT_RADIUS,
             )
             mars_orbit = orbit_shape(
                 center=sun_position,
-                semi_major=SUN_MARS_DISTANCE,
-                semi_minor=SUN_MARS_DISTANCE,
+                semi_major=MARS_ORBIT_RADIUS,
+                semi_minor=MARS_ORBIT_RADIUS,
             )
 
             APPROXIMATE_TAKE_OFF_HEIGHT = 2_336_000
