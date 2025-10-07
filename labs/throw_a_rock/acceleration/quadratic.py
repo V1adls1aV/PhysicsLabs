@@ -1,11 +1,11 @@
-from labs.model.constant import G
+from labs.model.constant import g
 
 from .drag import drag_factor
 from .variation_law import AccelerationVariationLaw
 
 
 def acceleration_y(velocity: float) -> float:
-    return -(drag_factor() * velocity**2) - G
+    return -(drag_factor() * velocity**2) - g
 
 
 def acceleration_x(velocity: float) -> float:
