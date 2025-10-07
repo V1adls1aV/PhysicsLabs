@@ -81,7 +81,7 @@ def page() -> None:
 
             rocket_angle = math.radians(
                 st.slider(
-                    "Start angle, deg", min_value=-30.0, max_value=30.0, value=-1.73, step=0.01
+                    "Start angle, deg", min_value=-90.0, max_value=90.0, value=-1.73, step=0.01
                 )
             )
 
