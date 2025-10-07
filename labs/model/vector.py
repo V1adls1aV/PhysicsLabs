@@ -25,7 +25,7 @@ class Vector2D:
 
     @cached_property
     def angle(self) -> float:
-        return math.degrees(math.atan2(self.y, self.x))
+        return math.atan2(self.y, self.x)
 
     @cached_property
     def norm(self) -> float:
@@ -56,7 +56,7 @@ def trajectory_to_df(trajectory_data: list[tuple[Vector2D, Vector2D]]) -> pd.Dat
                 "x": point.x,
                 "y": point.y,
                 "velocity_norm": velocity.norm,
-                "velocity_angle": velocity.angle,
+                "velocity_angle": math.degrees(velocity.angle),
             }
             for index, (point, velocity) in enumerate(trajectory_data)
         ]

@@ -13,6 +13,7 @@ playground itself.
 Try out interactive labs **right now**, on our [website!](https://hsse-physics-labs.streamlit.app/)
 
 - **M1. Throw a rock** · [General information](labs/throw_a_rock) · [Tests](tests/throw_a_rock)
+- **M2. Flight to Mars** · [General information](labs/flight_to_mars) · [Tests](tests/flight_to_mars)
 
 
 ## Launch guide
