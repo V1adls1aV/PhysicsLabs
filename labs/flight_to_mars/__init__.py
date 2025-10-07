@@ -58,8 +58,8 @@ __all__ = ["page"]
 
 
 def page() -> None:
-    SAMLING_DELTA = 1
-    st.session_state.sampling_delta = SAMLING_DELTA
+    SAMPLING_DELTA = 1
+    st.session_state.sampling_delta = SAMPLING_DELTA
     st.set_page_config(page_title="Flight to Mars 🚀", page_icon="🚀", layout="wide")
 
     with st.sidebar:
@@ -184,7 +184,7 @@ def page() -> None:
                 flight_equation=flight_equations[flight_equation_type],
                 planet_mass=EARTH_MASS,
             )
-            rockets: list[Rocket] = list(simulate_flight(calculator, SAMLING_DELTA))
+            rockets: list[Rocket] = list(simulate_flight(calculator, SAMPLING_DELTA))
 
             # Швабры держат потолок
             if not rockets:
@@ -213,8 +213,8 @@ def page() -> None:
         #################################################################################
 
         case FlightStage.SPACE:
-            SAMLING_DELTA = 60 * 60 * 4  # 4 hours
-            st.session_state.sampling_delta = SAMLING_DELTA
+            SAMPLING_DELTA = 60 * 60 * 4  # 4 hours
+            st.session_state.sampling_delta = SAMPLING_DELTA
 
             sun_radius = SUN_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 20
             earth_radius = EARTH_RADIUS if show_real_size else SUN_EARTH_DISTANCE / 50
@@ -265,7 +265,7 @@ def page() -> None:
                     RocketInterplanetaryFlightCalculator(
                         initial_rocket, interplanetary_engine_off_equation, [earth, mars, sun]
                     ),
-                    sampling_delta=SAMLING_DELTA,
+                    sampling_delta=SAMPLING_DELTA,
                     target_planet=mars,
                 )
             )
@@ -286,7 +286,7 @@ def page() -> None:
             with status.container(border=True):
                 if check_planet_reach(rockets[-2], rockets[-1], mars):
                     st.markdown("Succesfully reached the Mars!")
-                elif len(rockets) * SAMLING_DELTA > HUMAN_EXPIRATION_TIME:
+                elif len(rockets) * SAMPLING_DELTA > HUMAN_EXPIRATION_TIME:
                     st.markdown(
                         f"The astronaut is dead from hunger. Try not to exceed {HUMAN_EXPIRATION_TIME / DAY} days."
                     )
@@ -302,13 +302,8 @@ def page() -> None:
             col1.write("**Distance to Target (km)**")
             plot_distance_to_target_chart(col1, rockets, mars, in_days=True)
 
-            rockets_before_landing = [rocket for rocket in rockets if rocket.acceleration_x <= 0]
-            if rockets_before_landing:
-                col2.write("**Acceleration Before Landing (g)**")
-                plot_acceleration(col2, rockets_before_landing, in_days=True)
-
             col2.write("**Pure Acceleration (g)**")
-            plot_acceleration(col2, rockets[:-1], in_days=True)
+            plot_acceleration(col2, rockets, in_days=True)
 
         #################################################################################
 
@@ -332,7 +327,7 @@ def page() -> None:
                 flight_equation=flight_equations[flight_equation_type],
                 planet_mass=MARS_MASS,
             )
-            raw_rockets: list[Rocket] = list(simulate_flight(calculator, SAMLING_DELTA))
+            raw_rockets: list[Rocket] = list(simulate_flight(calculator, SAMPLING_DELTA))
             rockets: list[Rocket] = list(filter(lambda r: r.mass <= initial_mass, raw_rockets))
 
             # Швабры держат потолок
