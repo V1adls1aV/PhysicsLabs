@@ -67,10 +67,13 @@ def page() -> None:
 
         if flight_stage == FlightStage.SPACE:
             show_real_size: bool = st.checkbox("Show real planets size")
+            enable_planet_gravity: bool = st.checkbox(
+                "Take into account the gravity of both planets", value=True
+            )
 
             relative_rocket_velocity_norm: float = 1000 * st.slider(
                 "Relative initial velocity (km/s)",
-                min_value=5.0,
+                min_value=10.0 if enable_planet_gravity else 5.0,
                 max_value=20.0,
                 value=11.3,
                 step=0.01,
@@ -81,7 +84,7 @@ def page() -> None:
                     "Relative start angle, deg",
                     min_value=-90.0,
                     max_value=90.0,
-                    value=-1.73,
+                    value=-1.70,
                     step=0.01,
                 )
             )
@@ -99,7 +102,7 @@ def page() -> None:
                 ),
             )
 
-            st.info("Earth position is set by a radius-vector angle from the Sun.")
+            st.info("Earth position is set by a radius-vector angle from Sun.")
 
             def relative_position(v: Vector2D) -> Vector2D:
                 return v - earth_position + Vector2D(EARTH_ORBIT_RADIUS, 0)
@@ -219,11 +222,11 @@ def page() -> None:
             else:
                 status = results.empty()
 
-            with status.container(border=True):
+            with status.container():
                 if rockets and did_leave_the_planet(rockets[-1], EARTH_MASS):
-                    st.markdown("You have successfully escaped Earth's gravitation!")
+                    st.success("You have successfully escaped Earth's gravitation!")
                 else:
-                    st.markdown("You have not reached the speed to overcome gravitation.")
+                    st.error("You have not reached the speed to overcome gravitation.")
 
         #################################################################################
 
@@ -259,7 +262,7 @@ def page() -> None:
             APPROXIMATE_TAKE_OFF_HEIGHT = 2_336_000
 
             rocket_start_point = Vector2D.from_polar(
-                EARTH_RADIUS + APPROXIMATE_TAKE_OFF_HEIGHT, angle=rocket_angle
+                EARTH_RADIUS + APPROXIMATE_TAKE_OFF_HEIGHT, angle=rocket_velocity.angle
             )
             rocket_shape_at = partial(rocket_shape, size=earth_radius / 3)
 
@@ -278,7 +281,9 @@ def page() -> None:
             rockets = list(
                 simulate_interplanetary_flight(
                     RocketInterplanetaryFlightCalculator(
-                        initial_rocket, interplanetary_engine_off_equation, [earth, mars, sun]
+                        initial_rocket,
+                        interplanetary_engine_off_equation,
+                        [earth, mars, sun] if enable_planet_gravity else [sun],
                     ),
                     sampling_delta=SAMPLING_DELTA,
                     target_planet=mars,
@@ -298,16 +303,16 @@ def page() -> None:
             st.plotly_chart(figure, key="animation")
 
             status = st.empty()
-            with status.container(border=True):
+            with status.container():
                 if check_planet_reach(rockets[-2], rockets[-1], mars):
-                    st.markdown("Successfully reached the Mars!")
+                    st.success("Successfully reached Mars!")
                 elif len(rockets) * SAMPLING_DELTA > HUMAN_EXPIRATION_TIME:
-                    st.markdown(
+                    st.error(
                         f"The astronaut is dead from hunger. "
                         f"Try not to exceed {HUMAN_EXPIRATION_TIME / DAY} days."
                     )
                 else:
-                    st.markdown("You failed to maintain enough speed to reach the Mars.")
+                    st.error("You failed to maintain enough speed to reach Mars.")
 
             st.subheader("Rocket Metrics Over Time")
             col1, col2 = st.columns(2)
@@ -371,7 +376,7 @@ def page() -> None:
 
             with status.container(border=True):
                 if rockets and did_leave_the_planet(rockets[-1], MARS_MASS):
-                    st.markdown(
+                    st.success(
                         f"You have to turn on engine at "
                         f"{(rockets[-1].y - MARS_RADIUS) / 1000:.01f}km above to successfully land "
                         f"on Mars. You should have only "
@@ -379,7 +384,7 @@ def page() -> None:
                         f"({rockets[-1].fuel_mass:.02f} ton) of a fuel tank to be full."
                     )
                 else:
-                    st.markdown(
+                    st.error(
                         f"You probably have been smashed into pieces. You must have "
                         f"{(raw_rockets[-1].fuel_mass / fuel_mass - 1) * 100:.02f}% "
                         f"more fuel ({rockets[-1].fuel_mass:.02f} ton in total) "
