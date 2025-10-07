@@ -10,7 +10,7 @@ class RocketFlightCalculator:
         self,
         rocket: Rocket,
         planet_mass: float,
-        flight_equation: Callable[[Rocket, float, float, float], list[float]],
+        flight_equation: Callable[[Rocket, float, float, float, float], list[float]],
     ) -> None:
         y0 = [rocket.y, rocket.velocity_y, rocket.mass]
         self.rocket = rocket

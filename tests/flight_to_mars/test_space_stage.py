@@ -1,3 +1,4 @@
+# ruff: noqa: ARG001
 import math
 
 import pytest
@@ -24,9 +25,9 @@ from labs.model.vector import Vector2D
 @pytest.mark.parametrize(
     ("initial_velocity_norm", "initial_angle", "expected_distance", "expected_travel_time"),
     [
-        (11_300, math.radians(-1.73), 80_000_000_000, 210 * 24 * 3600),  # 11.3 km/s, typical escape
-        (15_000, math.radians(5.0), 65_000_000_000, 180 * 24 * 3600),  # 15.0 km/s, faster
-        (20_000, math.radians(-10.0), 50_000_000_000, 150 * 24 * 3600),  # 20.0 km/s, even faster
+        (11_300, math.radians(-1.73), 80_000_000_000, 210 * 24 * 3600),
+        (15_000, math.radians(5.0), 65_000_000_000, 180 * 24 * 3600),
+        (20_000, math.radians(-10.0), 50_000_000_000, 150 * 24 * 3600),
     ],
 )
 def test_space_stage_physics(
@@ -44,9 +45,7 @@ def test_space_stage_physics(
     initial_velocity = Vector2D.from_polar(initial_velocity_norm, initial_angle)
     rocket_velocity = initial_velocity + earth_velocity
 
-    rocket_start_point = earth_position + Vector2D(
-        EARTH_RADIUS + 2_336_000, 0
-    )
+    rocket_start_point = earth_position + Vector2D(EARTH_RADIUS + 2_336_000, 0)
     initial_rocket = Rocket(
         x=rocket_start_point.x,
         y=rocket_start_point.y,
@@ -59,14 +58,11 @@ def test_space_stage_physics(
         acceleration_y=0,
     )
 
-    # Set up Mars position
     mars_position = Vector2D(MARS_ORBIT_RADIUS, 0)
     mars = Planet(x=mars_position.x, y=mars_position.y, mass=MARS_MASS, radius=MARS_RADIUS)
 
-    # Set up Sun
     sun = Planet(x=-EARTH_ORBIT_RADIUS, y=0, mass=SUN_MASS, radius=SUN_RADIUS)
 
-    # Simulate flight
     sampling_delta = 60 * 60 * 4  # 4 hours
     calculator = RocketInterplanetaryFlightCalculator(
         initial_rocket, interplanetary_engine_off_equation, [earth, mars, sun]
@@ -78,14 +74,12 @@ def test_space_stage_physics(
         )
     )
 
-    # Check if the rocket approaches Mars
     for i in range(len(rockets) - 1):
         dist_to_mars = ((rockets[i].x - mars.x) ** 2 + (rockets[i].y - mars.y) ** 2) ** 0.5
         if dist_to_mars <= mars.radius * 50:  # Using same tolerance as in the code
             break
 
     if len(rockets) > 0:
-        # Check that the simulation ran by looking at velocity change
         if len(rockets) > 1:
             last_rocket = rockets[-1]
             if (

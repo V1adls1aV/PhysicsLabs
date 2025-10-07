@@ -84,7 +84,7 @@ def page() -> None:
                     "Relative start angle, deg",
                     min_value=-90.0,
                     max_value=90.0,
-                    value=-1.70,
+                    value=-18.19,
                     step=0.01,
                 )
             )
@@ -96,7 +96,7 @@ def page() -> None:
                         "Earth position, deg",
                         min_value=-180.0,
                         max_value=180.0,
-                        value=-50.0,
+                        value=-180.0,
                         step=0.1,
                     )
                 ),
@@ -374,7 +374,7 @@ def page() -> None:
             else:
                 status = results.empty()
 
-            with status.container(border=True):
+            with status.container():
                 if rockets and did_leave_the_planet(rockets[-1], MARS_MASS):
                     st.success(
                         f"You have to turn on engine at "
