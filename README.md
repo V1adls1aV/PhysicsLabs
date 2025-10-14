@@ -2,7 +2,7 @@
 
 ## About
 
-You can find here the interactive labs (experiment simulations), play with parameters and enjoy materialized results!
+You can find [here](https://hsse-physics-labs.streamlit.app/) the interactive labs (experiment simulations), play with parameters and enjoy materialized results!
 
 Each page represents a separate lab, where you can find experiment description, limits of applicability, and the
 playground itself.
@@ -18,19 +18,7 @@ Try out interactive labs **right now**, on our [website!](https://hsse-physics-l
 
 ## Launch guide
 
-### Option 1. Docker
-
-This app launch option is not ready yet, use the next one (option 2)
-
-Simply run:
-
-```shell
-docker run --rm -p 8501:8501 ...  # TODO: add image name
-```
-
-The app will be available at [localhost:8501](http://localhost:8501)
-
-### Option 2. `uv`
+### Option 1. `uv`
 
 Install [uv](https://docs.astral.sh/uv/) via `curl`:
 
@@ -56,7 +44,7 @@ And launch the app:
 uv run streamlit run main.py
 ```
 
-### Option 3. `pip`
+### Option 2. `pip`
 
 If you don't want to install `uv`, you can use `pip` with `requirements.txt`.
 
