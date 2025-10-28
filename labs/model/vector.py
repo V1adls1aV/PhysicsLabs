@@ -52,6 +52,7 @@ class Vector2D:
 def trajectory_to_df(trajectory_data: list[tuple[Vector2D, Vector2D]]) -> pd.DataFrame:
     """
     Build a DataFrame with time, position, and velocity characteristics.
+
     Columns: time, x, y, velocity, velocity_angle
     """
     return pd.DataFrame(

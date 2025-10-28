@@ -15,12 +15,8 @@ def render_animation(
     orbits: Iterable[dict[str, Any]] = (),
 ) -> go.Figure:
     """Create animated Plotly figure with frames for rocket flight."""
-    max_x = max(
-        max(abs(rocket.x) for rocket in rockets), max(abs(planet["x"]) for planet in planets)
-    )
-    max_y = max(
-        max(abs(rocket.y) for rocket in rockets), max(abs(planet["y"]) for planet in planets)
-    )
+    max_x = max(*(abs(rocket.x) for rocket in rockets), *(abs(planet["x"]) for planet in planets))
+    max_y = max(*(abs(rocket.y) for rocket in rockets), *(abs(planet["y"]) for planet in planets))
     x_range, y_range = _adjust_axies(max_x, max_y)
 
     frames = []
