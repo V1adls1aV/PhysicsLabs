@@ -15,7 +15,6 @@ def move_with_slippage(ball: Ball, env: Environment, time_delta: float) -> Ball:
         * ball.mass
         * g
         * ball.radius
-        * ball.radius
         * cos_rounded(env.incline_angle)
         / ball.rotational_inertia
     )
