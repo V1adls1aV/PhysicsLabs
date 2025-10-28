@@ -22,10 +22,7 @@ class Ball:
     angular_acceleration: float = 0
 
     def get_position_x(self, env: Environment) -> float:
-        return (
-            (env.plane_length - self.position) * cos_rounded(env.incline_angle)
-            - self.radius * sin_rounded(env.incline_angle)
-        )  # fmt: skip
+        return self.position * cos_rounded(env.incline_angle)
 
     def get_position_y(self, env: Environment) -> float:
         return (

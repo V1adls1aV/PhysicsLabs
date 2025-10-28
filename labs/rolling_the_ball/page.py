@@ -41,22 +41,12 @@ def page() -> None:
                     "Initial translational velocity (m/s)",
                     min_value=0.0,
                     max_value=10.0,
-                    value=0.0,
+                    value=3.0,
                     step=0.1,
                     format="%.1f",
                 )
             ),
-            angular_velocity=(
-                st.slider(
-                    "Initial angular velocity (rot/s)",
-                    min_value=0.0,
-                    max_value=10.0,
-                    value=0.0,
-                    step=0.01,
-                    format="%.2f",
-                )
-                * (2 * math.pi)
-            ),
+            angular_velocity=0,
         )
 
         environment = Environment(
@@ -113,60 +103,77 @@ def page() -> None:
 
     st.subheader("Ball parameters over time")
 
-    column1, column2 = st.columns(2)
+    with st.container(horizontal=True, horizontal_alignment="center", gap="large"):
+        st.metric(
+            "Finish time",
+            f"{len(balls) * SAMPLING_DELTA:.2f} s",
+            width="content",
+        )
+        st.metric(
+            "Slippage end time",
+            (
+                f"{calculator.slippage_end_time:.2f} s"
+                if calculator.slippage_end_time is not None
+                else None
+            ),
+            help="If zero — no slippage occurred. If not present — slippage never ended.",
+            width="content",
+        )
 
-    column1.html("<b>Ball position X (m)</b>")
+    chart_column_1, chart_column_2 = st.columns(2)
+
+    chart_column_1.html("<b>Ball position X (m)</b>")
     plot_ball_property(
-        container=column1,
+        container=chart_column_1,
         balls=balls,
         property_callable=lambda b: b.get_position_x(environment),
         label="Position X",
         color="#1f77b4",
     )
 
-    column2.html("<b>Ball position Y (m)</b>")
+    chart_column_2.html("<b>Ball position Y (m)</b>")
     plot_ball_property(
-        container=column2,
+        container=chart_column_2,
         balls=balls,
         property_callable=lambda b: b.get_position_y(environment),
         label="Position Y",
         color="#1f77b4",
     )
 
-    column1.html("<b>Ball translational velocity (m/s)</b>")
+    chart_column_1.html("<b>Ball translational velocity (m/s)</b>")
     plot_ball_property(
-        container=column1,
+        container=chart_column_1,
         balls=balls,
         property_callable=lambda b: b.translational_velocity,
-        label="Translational Velocity",
+        label="Translational velocity",
         color="#ff7f0e",
     )
 
-    column2.html("<b>Ball angular velocity (rot/s)</b>")
+    chart_column_2.html("<b>Ball angular velocity (rot/s)</b>")
     plot_ball_property(
-        container=column2,
+        container=chart_column_2,
         balls=balls,
         property_callable=lambda b: b.angular_velocity / (2 * math.pi),
-        label="Angular Velocity",
+        label="Angular velocity",
         color="#ff7f0e",
     )
 
-    column1.html("<b>Ball translational acceleration (m/s<sup>2</sup>)</b>")
+    chart_column_1.html("<b>Ball translational acceleration (m/s<sup>2</sup>)</b>")
     plot_ball_property(
-        container=column1,
+        container=chart_column_1,
         balls=balls,
         property_callable=lambda b: b.translational_acceleration,
-        label="Translational Acceleration",
+        label="Translational acceleration",
         trim_last=True,
         color="#00bb54",
     )
 
-    column2.html("<b>Ball angular acceleration (rot/s<sup>2</sup>)</b>")
+    chart_column_2.html("<b>Ball angular acceleration (rot/s<sup>2</sup>)</b>")
     plot_ball_property(
-        container=column2,
+        container=chart_column_2,
         balls=balls,
         property_callable=lambda b: b.angular_acceleration / (2 * math.pi),
-        label="Angular Acceleration",
+        label="Angular acceleration",
         trim_last=True,
         color="#00bb54",
     )
