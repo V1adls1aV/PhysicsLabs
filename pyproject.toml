@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "altair>=5.5.0",
-    "numpy>=2.3.3",
+    "numpy>=2.3.4",
     "pandas>=2.3.3",
     "plotly>=6.3.1",
     "scipy>=1.16.1",
@@ -18,7 +18,7 @@ dev = [
     "pre-commit>=4.3.0",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
-    "ruff>=0.13.3",
+    "ruff>=0.14.2",
     "watchdog>=6.0.0",
 ]
 

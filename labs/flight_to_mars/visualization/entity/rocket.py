@@ -7,7 +7,7 @@ from cachetools.func import lru_cache
 
 
 def rocket_shape(
-    x: float, y: float, angle: float, size: float = 0.2, color: str = "#8e8e8e"
+    x: float, y: float, angle: float, size: float = 0.2, color: str = "#ff4b4b"
 ) -> dict[str, Any]:
     rocket = move_shape(_rocket_shape(size), x, y, angle)
     path = "M " + " L ".join(f"{px} {py}" for px, py in rocket) + " Z"

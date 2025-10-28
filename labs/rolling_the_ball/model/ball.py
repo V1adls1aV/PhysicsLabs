@@ -1,25 +1,34 @@
 from dataclasses import dataclass
 from functools import cached_property
-from math import cos, sin
+
+from labs.util.trigonometry import cos_rounded, sin_rounded
+
+from .environment import Environment
 
 
 @dataclass(frozen=True)
 class Ball:
-    weight: float
+    mass: float
     radius: float
 
     translational_velocity: float
     angular_velocity: float
 
-    position: float
-    angle: float
+    position: float = 0
+    angle: float = 0
 
-    def get_position_x(self, angle: float) -> float:
-        return self.position * round(cos(angle), 15)
+    def get_position_x(self, env: Environment) -> float:
+        return (
+            (env.plane_length - self.position) * cos_rounded(env.incline_angle)
+            - self.radius * sin_rounded(env.incline_angle)
+        )  # fmt: skip
 
-    def get_position_y(self, angle: float) -> float:
-        return self.position * round(sin(angle), 15)
+    def get_position_y(self, env: Environment) -> float:
+        return (
+            (env.plane_length - self.position) * sin_rounded(env.incline_angle)
+            + self.radius * cos_rounded(env.incline_angle)
+        )  # fmt: skip
 
     @cached_property
-    def moment_of_inertia(self) -> float:
-        return 2 / 5 * self.weight * self.radius * self.radius
+    def rotational_inertia(self) -> float:
+        return 2 / 5 * self.mass * self.radius * self.radius

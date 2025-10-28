@@ -21,7 +21,7 @@ pages = [
     ),
     st.Page(
         rolling_the_ball_page,
-        title="Rolling The Ball",
+        title="Rolling the ball",
         icon="⚽",
         url_path="rolling-the-ball",
     ),
