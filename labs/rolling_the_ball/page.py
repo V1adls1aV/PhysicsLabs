@@ -28,8 +28,8 @@ def page() -> None:
             radius=(
                 st.slider(
                     "Ball radius (cm)",
-                    min_value=1.0,
-                    max_value=100.0,
+                    min_value=0.5,
+                    max_value=30.0,
                     value=11.0,
                     step=0.1,
                     format="%.1f",
@@ -63,7 +63,7 @@ def page() -> None:
             friction_coefficient=st.slider(
                 "Friction coefficient",
                 min_value=0.0,
-                max_value=5.0,
+                max_value=2.0,
                 value=0.7,
                 step=0.01,
                 format="%.2f",
