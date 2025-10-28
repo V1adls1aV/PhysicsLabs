@@ -105,11 +105,6 @@ def page() -> None:
 
     with st.container(horizontal=True, horizontal_alignment="center", gap="large"):
         st.metric(
-            "Finish time",
-            f"{len(balls) * SAMPLING_DELTA:.2f} s",
-            width="content",
-        )
-        st.metric(
             "Slippage end time",
             (
                 f"{calculator.slippage_end_time:.2f} s"
@@ -119,10 +114,15 @@ def page() -> None:
             help="If zero — no slippage occurred. If not present — slippage never ended.",
             width="content",
         )
+        st.metric(
+            "Finish time",
+            f"{len(balls) * SAMPLING_DELTA:.2f} s",
+            width="content",
+        )
 
     chart_column_1, chart_column_2 = st.columns(2)
 
-    chart_column_1.html("<b>Ball position X (m)</b>")
+    chart_column_1.html("<b>Ball center position X (m)</b>")
     plot_ball_property(
         container=chart_column_1,
         balls=balls,
@@ -131,7 +131,7 @@ def page() -> None:
         color="#1f77b4",
     )
 
-    chart_column_2.html("<b>Ball position Y (m)</b>")
+    chart_column_2.html("<b>Ball center position Y (m)</b>")
     plot_ball_property(
         container=chart_column_2,
         balls=balls,
