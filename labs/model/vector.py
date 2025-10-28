@@ -43,6 +43,11 @@ class Vector2D:
     def __matmul__(self, other: Vector2D) -> float:
         return self.x * other.x + self.y * other.y
 
+    def rotate(self, delta_angle: float) -> Vector2D:
+        norm, angle = self.to_polar()
+        angle += delta_angle
+        return Vector2D.from_polar(norm, angle)
+
 
 def trajectory_to_df(trajectory_data: list[tuple[Vector2D, Vector2D]]) -> pd.DataFrame:
     """
