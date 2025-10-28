@@ -48,7 +48,7 @@ def page() -> None:
             ),
             angular_velocity=(
                 st.slider(
-                    "Initial angular velocity (rotations per second)",
+                    "Initial angular velocity (rot/s)",
                     min_value=0.0,
                     max_value=10.0,
                     value=0.0,
@@ -81,7 +81,7 @@ def page() -> None:
             plane_length=st.slider(
                 "Plane length (m)",
                 min_value=1.0,
-                max_value=1000.0,
+                max_value=100.0,
                 value=20.0,
                 step=0.1,
                 format="%.1f",
@@ -100,6 +100,14 @@ def page() -> None:
         with st.expander("Constants used"):
             st.html(f"g = {g} m/s<sup>2</sup>")
 
+    if (
+        environment.incline_angle == 0
+        and ball.translational_velocity == 0
+        and ball.angular_velocity == 0
+    ):
+        st.warning("The ball will not move with no velocity on a horizontal plane.")
+        return
+
     calculator = Calculator(ball=ball, env=environment)
     balls = tuple(simulate(calculator, sampling_delta=SAMPLING_DELTA))
 
@@ -107,34 +115,58 @@ def page() -> None:
 
     column1, column2 = st.columns(2)
 
-    column1.write("**Ball translational velocity (m/s)**")
+    column1.html("<b>Ball position X (m)</b>")
     plot_ball_property(
-        column1,
-        balls,
-        lambda b: b.translational_velocity,
-        "Translational Velocity",
+        container=column1,
+        balls=balls,
+        property_callable=lambda b: b.get_position_x(environment),
+        label="Position X",
+        color="#1f77b4",
     )
 
-    column2.write("**Ball angular velocity (rotations per second)**")
+    column2.html("<b>Ball position Y (m)</b>")
     plot_ball_property(
-        column2,
-        balls,
-        lambda b: b.angular_velocity / (2 * math.pi),
-        "Angular Velocity",
+        container=column2,
+        balls=balls,
+        property_callable=lambda b: b.get_position_y(environment),
+        label="Position Y",
+        color="#1f77b4",
     )
 
-    column1.write("**Ball position X (m)**")
+    column1.html("<b>Ball translational velocity (m/s)</b>")
     plot_ball_property(
-        column1,
-        balls,
-        lambda b: b.get_position_x(environment),
-        "Position X",
+        container=column1,
+        balls=balls,
+        property_callable=lambda b: b.translational_velocity,
+        label="Translational Velocity",
+        color="#ff7f0e",
     )
 
-    column2.write("**Ball position Y (m)**")
+    column2.html("<b>Ball angular velocity (rot/s)</b>")
     plot_ball_property(
-        column2,
-        balls,
-        lambda b: b.get_position_y(environment),
-        "Position Y",
+        container=column2,
+        balls=balls,
+        property_callable=lambda b: b.angular_velocity / (2 * math.pi),
+        label="Angular Velocity",
+        color="#ff7f0e",
+    )
+
+    column1.html("<b>Ball translational acceleration (m/s<sup>2</sup>)</b>")
+    plot_ball_property(
+        container=column1,
+        balls=balls,
+        property_callable=lambda b: b.translational_acceleration,
+        label="Translational Acceleration",
+        trim_last=True,
+        color="#00bb54",
+    )
+
+    column2.html("<b>Ball angular acceleration (rot/s<sup>2</sup>)</b>")
+    plot_ball_property(
+        container=column2,
+        balls=balls,
+        property_callable=lambda b: b.angular_acceleration / (2 * math.pi),
+        label="Angular Acceleration",
+        trim_last=True,
+        color="#00bb54",
     )

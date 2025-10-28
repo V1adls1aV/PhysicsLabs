@@ -12,10 +12,16 @@ def plot_ball_property(
     balls: Sequence[Ball],
     property_callable: Callable[[Ball], float],
     label: str,
-    color: str = "#1f77b4",
+    color: str,
+    *,
+    trim_last: bool = False,
 ) -> None:
     timeline = _time_axis(len(balls))
-    values = [property_callable(ball) for ball in balls]
+    values = tuple(property_callable(ball) for ball in balls)
+
+    if trim_last:
+        timeline = timeline[:-1]
+        values = values[:-1]
 
     container.line_chart(
         {
@@ -23,11 +29,11 @@ def plot_ball_property(
             label: values,
         },
         x="Time (s)",
-        y=[label],
-        color=[color],
+        y=label,
+        color=color,
     )
 
 
-@lru_cache
-def _time_axis(size: int) -> list[float]:
-    return [i * SAMPLING_DELTA for i in range(size)]
+@lru_cache(maxsize=1)
+def _time_axis(size: int) -> tuple[float, ...]:
+    return tuple(i * SAMPLING_DELTA for i in range(size))
