@@ -10,10 +10,11 @@ class PlainInput:
     ball: Ball
 
 
+EPS = 3e-2
+
 HIGH_INCLINE_LENGTH = 100
 MEDIUM_INCLINE_LENGTH = 50
 SHORT_INCLINE_LENGTH = 10
-
 
 PLAIN_INPUT = [
     PlainInput(
@@ -22,15 +23,15 @@ PLAIN_INPUT = [
             friction_coefficient=0.7,
             plane_length=SHORT_INCLINE_LENGTH,
         ),
-        Ball(mass=1, radius=0.11, translational_velocity=3.8, angular_velocity=0),
+        Ball(mass=1, radius=0.11, translational_velocity=4.0, angular_velocity=0),
     ),
     PlainInput(
         Environment(
             incline_angle=math.radians(25),
-            friction_coefficient=0.7,
+            friction_coefficient=0.43,
             plane_length=SHORT_INCLINE_LENGTH,
         ),
-        Ball(mass=1, radius=0.084, translational_velocity=1.5, angular_velocity=0),
+        Ball(mass=1, radius=0.26, translational_velocity=3.1, angular_velocity=0),
     ),
     PlainInput(
         Environment(
@@ -38,7 +39,7 @@ PLAIN_INPUT = [
             friction_coefficient=0.53,
             plane_length=SHORT_INCLINE_LENGTH,
         ),
-        Ball(mass=1, radius=0.175, translational_velocity=3.8, angular_velocity=0),
+        Ball(mass=1, radius=0.175, translational_velocity=6.0, angular_velocity=0),
     ),
 ]
 
@@ -76,7 +77,7 @@ NON_FULLY_SLIPPING_INPUT = [
         Environment(
             incline_angle=math.radians(10),
             friction_coefficient=0.15,
-            plane_length=HIGH_INCLINE_LENGTH,
+            plane_length=SHORT_INCLINE_LENGTH,
         ),
         Ball(mass=1, radius=0.11, translational_velocity=1, angular_velocity=0),
     ),

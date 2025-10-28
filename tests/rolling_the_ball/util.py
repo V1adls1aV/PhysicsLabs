@@ -7,7 +7,7 @@ def calculate_phase_transition_time(
     initial_velocity: float, friction_coefficient: float, incline_angle: float
 ) -> float:
     return initial_velocity / (
-        g * (2 / 7 * friction_coefficient * cos(incline_angle) - sin(incline_angle))
+        g * (7 / 2 * friction_coefficient * cos(incline_angle) - sin(incline_angle))
     )
 
 
