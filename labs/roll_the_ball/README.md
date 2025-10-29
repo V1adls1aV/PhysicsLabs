@@ -60,4 +60,4 @@
 Инструкция в [корневом README](/README.md)
 
 
-## [Тесты](/tests/rolling_the_ball)
+## [Тесты](/tests/roll_the_ball)

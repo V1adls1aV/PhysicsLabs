@@ -1,7 +1,7 @@
 import math
 from dataclasses import dataclass
 
-from labs.rolling_the_ball.model import Ball, Environment
+from labs.roll_the_ball.model import Ball, Environment
 
 
 @dataclass

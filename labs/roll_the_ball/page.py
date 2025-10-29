@@ -3,17 +3,17 @@ import math
 import streamlit as st
 
 from labs.model.constant import g
-from labs.rolling_the_ball.model import Ball, Environment
-from labs.rolling_the_ball.simulation import Calculator, simulate
 
 from .config import SAMPLING_DELTA
-from .visualization import plot_ball_property
+from .model import Ball, Environment
+from .simulation import Calculator, simulate
+from .visualization import plot_ball_property, render_ball_animation
 
 
 def page() -> None:
-    st.set_page_config(page_title="Rolling the ball ⚽", page_icon="⚽", layout="wide")
+    st.set_page_config(page_title="Roll the ball ⚽", page_icon="⚽", layout="wide")
 
-    st.title("Rolling the ball ⚽")
+    st.title("Roll the ball ⚽")
 
     with st.sidebar:
         ball = Ball(
@@ -21,7 +21,7 @@ def page() -> None:
                 "Ball mass (kg)",
                 min_value=0.01,
                 max_value=10.0,
-                value=0.42,
+                value=0.5,
                 step=0.01,
                 format="%.2f",
             ),
@@ -30,7 +30,7 @@ def page() -> None:
                     "Ball radius (cm)",
                     min_value=0.5,
                     max_value=30.0,
-                    value=11.0,
+                    value=15.0,
                     step=0.1,
                     format="%.1f",
                 )
@@ -41,7 +41,7 @@ def page() -> None:
                     "Initial translational velocity (m/s)",
                     min_value=0.0,
                     max_value=10.0,
-                    value=3.0,
+                    value=5.0,
                     step=0.1,
                     format="%.1f",
                 )
@@ -55,7 +55,7 @@ def page() -> None:
                     "Incline angle (deg)",
                     min_value=0.0,
                     max_value=89.9,
-                    value=30.0,
+                    value=40.0,
                     step=0.1,
                     format="%.1f",
                 )
@@ -79,13 +79,7 @@ def page() -> None:
         )
 
         with st.expander("Calculated parameters", expanded=True):
-            st.html(
-                f"Plane height: <b>{environment.plane_height:.2f} m</b>"
-                f"<br>"
-                f"Ball center position X: <b>{ball.get_position_x(environment):.2f} m</b>"
-                f"<br>"
-                f"Ball center position Y: <b>{ball.get_position_y(environment):.2f} m</b>"
-            )
+            st.html(f"Plane height: <b>{environment.plane_height:.2f} m</b>")
 
         with st.expander("Constants used"):
             st.html(f"g = {g} m/s<sup>2</sup>")
@@ -101,7 +95,7 @@ def page() -> None:
     calculator = Calculator(ball=ball, env=environment)
     balls = tuple(simulate(calculator, sampling_delta=SAMPLING_DELTA))
 
-    st.subheader("Ball parameters over time")
+    st.plotly_chart(render_ball_animation(balls=balls, env=environment))
 
     with st.container(horizontal=True, horizontal_alignment="center", gap="large"):
         st.metric(
@@ -119,6 +113,8 @@ def page() -> None:
             f"{len(balls) * SAMPLING_DELTA:.2f} s",
             width="content",
         )
+
+    st.subheader("Ball parameters over time")
 
     chart_column_1, chart_column_2 = st.columns(2)
 

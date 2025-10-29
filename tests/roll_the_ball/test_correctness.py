@@ -1,14 +1,14 @@
 r"""
-Stress-tests to check correctness of the algorithm.
+Tests to check correctness of the algorithm.
 
 Проверить, что скорость возрастания $\omega$ становится строго меньше при переходе к фазе без
-проскальзования ($\dot\omega_1 > \dot\omega_2$).
+проскальзывания ($\dot\omega_1 > \dot\omega_2$).
 """
 
 import pytest
 
-from labs.rolling_the_ball.config import SAMPLING_DELTA
-from labs.rolling_the_ball.simulation import Calculator, simulate
+from labs.roll_the_ball.config import SAMPLING_DELTA
+from labs.roll_the_ball.simulation import Calculator, simulate
 
 from .data import (
     EPS,
@@ -38,7 +38,7 @@ def test_angular_acceleration_decreases_at_transition(data: PlainInput) -> None:
     transition_index = int(transition_time / SAMPLING_DELTA)
 
     # Look at a wider range around transition to find the actual change
-    if transition_index > 2 and transition_index < len(balls) - 2:
+    if 2 < transition_index < len(balls) - 2:
         # Find the last ball state with slippage (before transition)
         ball_slipping = None
         ball_rolling = None

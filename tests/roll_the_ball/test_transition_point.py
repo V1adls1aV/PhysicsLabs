@@ -1,7 +1,7 @@
 import pytest
 
-from labs.rolling_the_ball.config import SAMPLING_DELTA
-from labs.rolling_the_ball.simulation import Calculator, simulate
+from labs.roll_the_ball.config import SAMPLING_DELTA
+from labs.roll_the_ball.simulation import Calculator, simulate
 
 from .data import (
     EPS,
