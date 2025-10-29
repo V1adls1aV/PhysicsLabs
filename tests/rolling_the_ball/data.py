@@ -52,7 +52,7 @@ SLIPPING_INPUT = [
             plane_length=HIGH_INCLINE_LENGTH,
         ),
         Ball(mass=1, radius=0.11, translational_velocity=1, angular_velocity=0),
-    ),  # BUT, this works starting from $\mu = 0.10$
+    ),
     PlainInput(  # k=0, v=1
         Environment(
             incline_angle=math.radians(30),

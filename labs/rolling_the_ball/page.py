@@ -7,7 +7,7 @@ from labs.model.constant import g
 from .config import SAMPLING_DELTA
 from .model import Ball, Environment
 from .simulation import Calculator, simulate
-from .visualization import plot_ball_property, render_ball_animation
+from .visualization import plot_ball_property, plot_energy, render_ball_animation
 
 
 def page() -> None:
@@ -55,7 +55,7 @@ def page() -> None:
                     "Incline angle (deg)",
                     min_value=0.0,
                     max_value=89.9,
-                    value=40.0,
+                    value=15.0,
                     step=0.1,
                     format="%.1f",
                 )
@@ -64,7 +64,7 @@ def page() -> None:
                 "Friction coefficient",
                 min_value=0.0,
                 max_value=2.0,
-                value=0.7,
+                value=0.25,
                 step=0.01,
                 format="%.2f",
             ),
@@ -72,7 +72,7 @@ def page() -> None:
                 "Plane length (m)",
                 min_value=1.0,
                 max_value=100.0,
-                value=20.0,
+                value=10.0,
                 step=0.1,
                 format="%.1f",
             ),
@@ -173,3 +173,6 @@ def page() -> None:
         trim_last=True,
         color="#00bb54",
     )
+
+    st.subheader("Energy over time")
+    st.plotly_chart(plot_energy(balls=balls, env=environment))
