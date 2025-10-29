@@ -85,19 +85,16 @@ def test_space_stage_physics(
             if (
                 abs(last_rocket.x - rocket_start_point.x) > 0.001
                 or abs(last_rocket.y - rocket_start_point.y) > 0.001
+            ) or (
+                last_rocket.velocity_x != initial_rocket.velocity_x
+                or last_rocket.velocity_y != initial_rocket.velocity_y
             ):
                 pass
             else:
-                if (
-                    last_rocket.velocity_x != initial_rocket.velocity_x
-                    or last_rocket.velocity_y != initial_rocket.velocity_y
-                ):
-                    pass
-                else:
-                    raise AssertionError(
-                        f"Simulation doesn't seem to be running properly. "
-                        f"Initial rocket: {initial_rocket}, Last rocket: {last_rocket}"
-                    )
+                raise AssertionError(
+                    f"Simulation doesn't seem to be running properly. "
+                    f"Initial rocket: {initial_rocket}, Last rocket: {last_rocket}"
+                )
         else:
             expected_initial_velocity = rocket_velocity
             actual_rocket = rockets[0]
