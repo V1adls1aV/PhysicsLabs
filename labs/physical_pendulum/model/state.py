@@ -4,8 +4,6 @@ from math import cos
 
 from labs.model.constant import g
 
-EPS = 1e-1
-
 
 @dataclass(frozen=True)
 class PendulumState:
@@ -31,7 +29,3 @@ class PendulumState:
     @cached_property
     def full_energy(self) -> float:
         return self.rotational_energy + self.potential_energy
-
-    @cached_property
-    def is_extreme(self) -> bool:
-        return abs(self.angular_velocity) < EPS

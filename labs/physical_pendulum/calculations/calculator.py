@@ -16,23 +16,20 @@ class AngleCalculator:
 
         self.friction_coefficient = friction_coefficient
 
-        self.solver = ode(self.__system).set_initial_value(t=0.0, y=[initial_state.angle, 0.0])
+        self.solver = ode(self.__system).set_initial_value(
+            t=0.0, y=[initial_state.angle, initial_state.angular_velocity]
+        )
 
     def __system(self, t: float, y: list[float]) -> list[float]:
         angle, angular_vel = y
 
         d_angle = angular_vel
-        d_vel = -self.weight * g * self.length * round(sin(angle), 15) / self.moment_of_inertia / 2
+        d_vel = -self.weight * g * self.length * round(sin(angle), 15) / 2 / self.moment_of_inertia
 
         d_vel -= (
-            1
-            / 3
-            * self.weight
-            * self.length**2
-            * self.friction_coefficient
-            * angular_vel
-            / self.moment_of_inertia
+            self.friction_coefficient * (self.length**3) * angular_vel / self.moment_of_inertia / 3
         )
+
         return [
             d_angle,
             d_vel,
