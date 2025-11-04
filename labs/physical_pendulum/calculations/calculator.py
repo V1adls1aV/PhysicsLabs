@@ -10,6 +10,7 @@ from ..model import PendulumState
 
 class AngleCalculator:
     def __init__(self, initial_state: PendulumState, friction_coefficient: float) -> None:
+        self.initial_state = initial_state
         self.weight = initial_state.weight
         self.length = initial_state.length
         self.moment_of_inertia = initial_state.moment_of_inertia
