@@ -10,8 +10,8 @@ class PendulumState:
     length: float
     weight: float
 
-    angular_velocity: float
     angle: float
+    angular_velocity: float = 0.0
     time: float = 0.0
 
     @cached_property
@@ -25,3 +25,7 @@ class PendulumState:
     @cached_property
     def rotational_energy(self) -> float:
         return self.moment_of_inertia * self.angular_velocity * self.angular_velocity / 2
+
+    @cached_property
+    def full_energy(self) -> float:
+        return self.rotational_energy + self.potential_energy
