@@ -19,7 +19,8 @@ def page() -> None:
     )
 
     calculator = AngleCalculator(
-        initial_state=start_state, friction_coefficient=st.sidebar.slider("Friction", 0.0, 5.0, 1.0)
+        initial_state=start_state,
+        friction_coefficient=st.sidebar.slider("Friction", 0.0, 10.0, 1.0),
     )
 
     simulation_time = st.sidebar.number_input("Simulation time", 0.2, 10.0, 5.0)
@@ -51,9 +52,8 @@ def page() -> None:
                 st.write(f"{2 * math.pi * math.sqrt(2 * start_state.length / (3 * g)):.4f} s")
             with col2:
                 st.write("#### Actual period")
-                last_even_extremum = len(extremes) - 1 - (1 - len(extremes) % 2)
                 st.write(
-                    f"{(extremes[last_even_extremum].time - extremes[0].time) / (last_even_extremum // 2):.4f} s"
+                    f"{2 * (extremes[-1].time - extremes[0].time) / (len(extremes) - 1):.4f} s"
                 )
 
         st.write("## Extremes")
