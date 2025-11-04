@@ -39,11 +39,12 @@ class AngleCalculator:
         ]
 
     def __call__(self, time_delta: float) -> PendulumState:
-        angle, _ = self.solver.integrate(self.solver.t + time_delta)
+        angle, angular_velocity = self.solver.integrate(self.solver.t + time_delta)
 
         return PendulumState(
             length=self.length,
             weight=self.weight,
             angle=angle,
             time=self.solver.t,
+            angular_velocity=angular_velocity,
         )
