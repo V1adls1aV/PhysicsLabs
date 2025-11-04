@@ -8,7 +8,7 @@ def simulate(
     time = 0.0
 
     states = []
-    extremes = []
+    extremes = [calculator.initial_state]
 
     while time <= simulation_time:
         state = calculator(time_delta)
