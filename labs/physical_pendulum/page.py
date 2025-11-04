@@ -19,8 +19,13 @@ def page() -> None:
         initial_state=start_state, friction_coefficient=st.sidebar.slider("Friction", 0.0, 5.0, 1.0)
     )
 
-    if st.button("Calculate"):
-        values = tuple(simulate(calculator, 0.01, 5))
+    simulation_time = st.sidebar.number_input("Simulation time", 0.2, 10.0, 5.0)
+
+    if st.sidebar.button("Calculate"):
+        st.write("## Charts")
+
+        values, extremes = tuple(simulate(calculator, 0.01, simulation_time))
+
         st.line_chart(values, x="time", y="angle")
         st.line_chart(values, x="time", y="angular_velocity")
         st.line_chart(
@@ -34,4 +39,15 @@ def page() -> None:
                 for value in values
             ],
             x="time",
+        )
+
+        st.write("## Extremes")
+        st.table(
+            [
+                {
+                    "angle": value.angle,
+                    "time": value.time,
+                }
+                for value in extremes
+            ]
         )
