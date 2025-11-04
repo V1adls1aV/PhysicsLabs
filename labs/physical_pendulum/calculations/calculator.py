@@ -22,7 +22,7 @@ class AngleCalculator:
         angle, angular_vel = y
 
         d_angle = angular_vel
-        d_vel = -self.weight * g * self.length * round(sin(angle), 15) / self.moment_of_inertia
+        d_vel = -self.weight * g * self.length * round(sin(angle), 15) / self.moment_of_inertia / 2
 
         d_vel -= (
             1
