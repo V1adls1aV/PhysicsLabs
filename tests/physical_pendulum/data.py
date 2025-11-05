@@ -2,8 +2,8 @@ from math import radians
 
 from labs.physical_pendulum.model import PendulumState
 
-ABSOLUTE_PRECISION = 1.8e-3  # 0.1 degrees  (about 5% of 2 degrees)
-RELATIVE_PRECISION = 5e-2  # 5%
+ABSOLUTE_PRECISION = 1.75e-4  # 0.01 degrees  (about 0.05% of 2 degrees)
+RELATIVE_PRECISION = 5e-4  # 0.05%
 
 START_ANGLE = radians(2.0)
 START_LENGTH = 1.0
@@ -16,7 +16,7 @@ HEAVY_FRICITON = 5.0
 ENORMOUS_FRICITON = 10.0
 
 SIMULATION_TIME = 10.0
-SAMPLING_DELTA = 0.01
+SAMPLING_DELTA = 0.001
 
 
 def get_pendulum(

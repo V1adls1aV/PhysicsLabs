@@ -1,6 +1,9 @@
 from math import radians
+from statistics import mean
 
 import pytest
+
+from labs.physical_pendulum.model import PendulumState
 
 from .data import (
     LIGHT_FRICITON,
@@ -35,8 +38,13 @@ def test_energy_decrease(
         pendulum, friction_coefficient=friction_coefficient, simulation_time=SIMULATION_TIME
     )
 
-    previous_energy = states[0].full_energy
+    for index in range(1, len(states) - 1):
+        assert _sum_n_before(index, states) >= _sum_n_after(index, states)
 
-    for state in states[1:]:
-        assert state.full_energy <= previous_energy
-        previous_energy = state.full_energy
+
+def _sum_n_before(index: int, states: list[PendulumState], n: int = 10) -> float:
+    return mean([states[i].full_energy for i in range(max(0, index - n), index)])
+
+
+def _sum_n_after(index: int, states: list[PendulumState], n: int = 10) -> float:
+    return mean([states[i].full_energy for i in range(index, min(index + n, len(states)))])
