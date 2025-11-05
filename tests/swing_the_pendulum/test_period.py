@@ -2,7 +2,7 @@ from math import radians
 
 import pytest
 
-from labs.physical_pendulum.calculations.util import (
+from labs.swing_the_pendulum.calculations.util import (
     calculate_mean_period,
     calculate_theoretical_period,
 )

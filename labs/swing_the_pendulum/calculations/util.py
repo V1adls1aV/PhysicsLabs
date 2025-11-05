@@ -1,7 +1,8 @@
 import math
 
 from labs.model.constant import g
-from labs.physical_pendulum.model import PendulumState
+
+from ..model import PendulumState
 
 
 def calculate_mean_period(extremes: list[PendulumState]) -> float:

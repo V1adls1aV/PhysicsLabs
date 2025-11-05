@@ -9,7 +9,7 @@
 
 ### Зависимость периода колебания от амлитуды
 
-![period_by_amplitude](/labs/physical_pendulum/assets/period_by_amplitude.jpg)
+![period_by_amplitude](./assets/period_by_amplitude.jpg)
 
 ### Зависимость периода от коеффициента трения
 
@@ -18,7 +18,7 @@
 
 Также не будем расчитывать значения коеффициента трения более 7, так как маятник не успевает сделать даже одного колебания (затухает мгновенно).
 
-![period_by_friction](/labs/physical_pendulum/assets/period_by_friction.jpg)
+![period_by_friction](./assets/period_by_friction.jpg)
 
 ## Входные параметры
 
@@ -60,4 +60,4 @@
 Инструкция в [корневом README](/README.md)
 
 
-## [Тесты](/tests/physical_pendulum)
+## [Тесты](/tests/swing_the_pendulum)
