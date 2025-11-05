@@ -1,9 +1,9 @@
 from ..model import PendulumState
-from .calculator import AngleCalculator
+from .calculator import PendulumCalculator
 
 
 def simulate(
-    calculator: AngleCalculator, time_delta: float, simulation_time: float
+    calculator: PendulumCalculator, time_delta: float, simulation_time: float
 ) -> tuple[list[PendulumState], list[PendulumState]]:
     time = 0.0
 

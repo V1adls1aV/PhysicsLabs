@@ -2,12 +2,12 @@ from math import radians
 
 import pytest
 
-from labs.swing_the_pendulum.calculations.util import calculate_mean_period
+from labs.swing_the_pendulum.simulation.util import calculate_mean_period
 
 from .calculations import run_theoretical_simulation
 from .data import (
-    LIGHT_FRICITON,
-    MEDIUM_FRICITON,
+    LIGHT_FRICTION,
+    MEDIUM_FRICTION,
     SIMULATION_TIME,
     START_ANGLE,
     START_LENGTH,
@@ -20,14 +20,14 @@ from .util import almost_equal, run_simulation
 @pytest.mark.parametrize(
     ("length", "weight", "angle", "friction_coefficient"),
     [
-        (START_LENGTH, START_WEIGHT, START_ANGLE, LIGHT_FRICITON),
-        (START_LENGTH, START_WEIGHT, START_ANGLE, MEDIUM_FRICITON),
-        (0.5, START_WEIGHT, radians(1.0), LIGHT_FRICITON),
-        (2.0, START_WEIGHT, START_ANGLE, LIGHT_FRICITON),
-        (2.0, START_WEIGHT, radians(3.0), LIGHT_FRICITON),
-        (START_LENGTH, START_WEIGHT, radians(1.0), LIGHT_FRICITON),
-        (START_LENGTH, 2.0, START_ANGLE, LIGHT_FRICITON),
-        (START_LENGTH, 0.5, START_ANGLE, LIGHT_FRICITON),
+        (START_LENGTH, START_WEIGHT, START_ANGLE, LIGHT_FRICTION),
+        (START_LENGTH, START_WEIGHT, START_ANGLE, MEDIUM_FRICTION),
+        (0.5, START_WEIGHT, radians(1.0), LIGHT_FRICTION),
+        (2.0, START_WEIGHT, START_ANGLE, LIGHT_FRICTION),
+        (2.0, START_WEIGHT, radians(3.0), LIGHT_FRICTION),
+        (START_LENGTH, START_WEIGHT, radians(1.0), LIGHT_FRICTION),
+        (START_LENGTH, 2.0, START_ANGLE, LIGHT_FRICTION),
+        (START_LENGTH, 0.5, START_ANGLE, LIGHT_FRICTION),
     ],
 )
 def test_period_equality_with_friction(

@@ -1,3 +1,5 @@
+# ruff: noqa: RUF001, RUF002
+
 from __future__ import annotations
 
 from math import cos, exp, sin, sqrt
@@ -5,13 +7,13 @@ from math import cos, exp, sin, sqrt
 from labs.model.constant import g
 from labs.swing_the_pendulum.model import PendulumState
 
-from .data import NO_FRICITON, SAMPLING_DELTA, SIMULATION_TIME
+from .data import NO_FRICTION, SAMPLING_DELTA, SIMULATION_TIME
 
 
 def run_theoretical_simulation(
     pendulum: PendulumState,
     *,
-    friction_coefficient: float = NO_FRICITON,
+    friction_coefficient: float = NO_FRICTION,
     sampling_delta: float = SAMPLING_DELTA,
     simulation_time: float = SIMULATION_TIME,
 ) -> tuple[list[PendulumState], list[PendulumState]]:
@@ -72,7 +74,8 @@ def calculate_angle_with_friction(
     initial_angle: float,
     initial_angular_velocity: float,
 ) -> float:
-    """Вычисляет угол отклонения маятника в момент времени t при наличии трения.
+    """
+    Вычисляет угол отклонения маятника в момент времени t при наличии трения.
 
     Для случая γ < 1:
     φ(t) = e^(-γω₀t) * (C₁cos(ω_d t) + C₂sin(ω_d t))
@@ -102,7 +105,8 @@ def calculate_angle_with_friction(
 
 
 def calculate_natural_angular_frequency(length: float) -> float:
-    """Вычисляет собственную частоту колебаний без трения.
+    """
+    Вычисляет собственную частоту колебаний без трения.
 
     ω₀ = √(3g/(2L))
     """
@@ -110,7 +114,8 @@ def calculate_natural_angular_frequency(length: float) -> float:
 
 
 def calculate_gamma(friction_coefficient: float, length: float, weight: float) -> float:
-    """Вычисляет коэффициент затухания.
+    """
+    Вычисляет коэффициент затухания.
 
     γ = βL/(2mω₀) = βL/(2m) * √(2L/(3g))
     """
@@ -119,7 +124,8 @@ def calculate_gamma(friction_coefficient: float, length: float, weight: float) -
 
 
 def calculate_damped_angular_frequency(natural_angular_frequency: float, gamma: float) -> float:
-    """Вычисляет частоту затухающих колебаний.
+    """
+    Вычисляет частоту затухающих колебаний.
 
     ω_d = ω₀√(1-γ²)
     """

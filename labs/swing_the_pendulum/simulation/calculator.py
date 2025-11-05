@@ -8,7 +8,7 @@ from labs.model.constant import g
 from ..model import PendulumState
 
 
-class AngleCalculator:
+class PendulumCalculator:
     def __init__(self, initial_state: PendulumState, friction_coefficient: float) -> None:
         self.initial_state = initial_state
         self.weight = initial_state.weight
@@ -17,11 +17,11 @@ class AngleCalculator:
 
         self.friction_coefficient = friction_coefficient
 
-        self.solver = ode(self.__system).set_initial_value(
+        self.solver = ode(self._equation_system).set_initial_value(
             t=0.0, y=[initial_state.angle, initial_state.angular_velocity]
         )
 
-    def __system(self, t: float, y: list[float]) -> list[float]:
+    def _equation_system(self, t: float, y: list[float]) -> list[float]:
         angle, angular_vel = y
 
         d_angle = angular_vel

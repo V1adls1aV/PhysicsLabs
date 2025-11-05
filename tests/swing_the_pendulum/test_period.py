@@ -2,13 +2,13 @@ from math import radians
 
 import pytest
 
-from labs.swing_the_pendulum.calculations.util import (
+from labs.swing_the_pendulum.simulation.util import (
     calculate_mean_period,
     calculate_theoretical_period,
 )
 
 from .data import (
-    NO_FRICITON,
+    NO_FRICTION,
     SIMULATION_TIME,
     START_ANGLE,
     START_LENGTH,
@@ -33,7 +33,7 @@ from .util import almost_equal, run_simulation
 def test_period_equality(length: float, weight: float, angle: float) -> None:
     pendulum = get_pendulum(length=length, weight=weight, angle=angle)
     _, extremes = run_simulation(
-        pendulum, friction_coefficient=NO_FRICITON, simulation_time=SIMULATION_TIME
+        pendulum, friction_coefficient=NO_FRICTION, simulation_time=SIMULATION_TIME
     )
 
     theoretical_period = calculate_theoretical_period(length)

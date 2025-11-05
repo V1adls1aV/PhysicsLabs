@@ -6,8 +6,8 @@ import pytest
 from labs.swing_the_pendulum.model import PendulumState
 
 from .data import (
-    LIGHT_FRICITON,
-    MEDIUM_FRICITON,
+    LIGHT_FRICTION,
+    MEDIUM_FRICTION,
     SIMULATION_TIME,
     START_ANGLE,
     START_LENGTH,
@@ -20,14 +20,14 @@ from .util import run_simulation
 @pytest.mark.parametrize(
     ("length", "weight", "angle", "friction_coefficient"),
     [
-        (START_LENGTH, START_WEIGHT, START_ANGLE, LIGHT_FRICITON),
-        (START_LENGTH, START_WEIGHT, START_ANGLE, MEDIUM_FRICITON),
-        (0.5, START_WEIGHT, START_ANGLE, LIGHT_FRICITON),
-        (2.0, START_WEIGHT, START_ANGLE, LIGHT_FRICITON),
-        (START_LENGTH, START_WEIGHT, radians(1.0), LIGHT_FRICITON),
-        (START_LENGTH, START_WEIGHT, radians(5.0), LIGHT_FRICITON),
-        (START_LENGTH, 2.0, START_ANGLE, LIGHT_FRICITON),
-        (START_LENGTH, 0.5, START_ANGLE, LIGHT_FRICITON),
+        (START_LENGTH, START_WEIGHT, START_ANGLE, LIGHT_FRICTION),
+        (START_LENGTH, START_WEIGHT, START_ANGLE, MEDIUM_FRICTION),
+        (0.5, START_WEIGHT, START_ANGLE, LIGHT_FRICTION),
+        (2.0, START_WEIGHT, START_ANGLE, LIGHT_FRICTION),
+        (START_LENGTH, START_WEIGHT, radians(1.0), LIGHT_FRICTION),
+        (START_LENGTH, START_WEIGHT, radians(5.0), LIGHT_FRICTION),
+        (START_LENGTH, 2.0, START_ANGLE, LIGHT_FRICTION),
+        (START_LENGTH, 0.5, START_ANGLE, LIGHT_FRICTION),
     ],
 )
 def test_energy_decrease(

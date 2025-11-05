@@ -1,3 +1,3 @@
-from .state import PendulumState
-
 __all__ = ["PendulumState"]
+
+from .state import PendulumState
