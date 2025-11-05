@@ -2,9 +2,10 @@ from math import radians
 
 from labs.physical_pendulum.model import PendulumState
 
-PRECISION = 5e-3
+ABSOLUTE_PRECISION = 1.8e-3  # 0.1 degrees  (about 5% of 2 degrees)
+RELATIVE_PRECISION = 5e-2  # 5%
 
-START_ANGLE = radians(3.0)
+START_ANGLE = radians(2.0)
 START_LENGTH = 1.0
 START_WEIGHT = 1.0
 
