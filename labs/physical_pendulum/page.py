@@ -13,9 +13,9 @@ def page() -> None:
     st.title("Pendulum[DEBUG]")
 
     start_state = PendulumState(
-        weight=st.sidebar.slider("Weight, kg", 0.1, 10.0, 1.0),
+        weight=st.sidebar.slider("Weight, kg", 0.1, 100.0, 1.0),
         length=st.sidebar.slider("Length, m", 0.1, 10.0, 1.0),
-        angle=radians(st.sidebar.slider("Angle, degree", 0.0, 90.0, 30.0)),
+        angle=radians(st.sidebar.slider("Angle, degree", 0.0, 179.0, 3.0)),
     )
 
     calculator = AngleCalculator(
@@ -23,7 +23,7 @@ def page() -> None:
         friction_coefficient=st.sidebar.slider("Friction", 0.0, 10.0, 1.0),
     )
 
-    simulation_time = st.sidebar.number_input("Simulation time", 0.2, 10.0, 5.0)
+    simulation_time = st.sidebar.number_input("Simulation time", 0.2, 50.0, 5.0)
 
     if st.sidebar.button("Calculate"):
         st.write("## Charts")

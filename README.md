@@ -15,6 +15,7 @@ Try out interactive labs **right now**, on our [website](https://hsse-physics-la
 - **M1. Throw a rock** · [General information](labs/throw_a_rock) · [Tests](tests/throw_a_rock)
 - **M2. Flight to Mars** · [General information](labs/flight_to_mars) · [Tests](tests/flight_to_mars)
 - **M4. Roll the ball** · [General information](labs/roll_the_ball) · [Tests](tests/roll_the_ball)
+- **M5. Chase the Period** · [General information](labs/physical_pendulum) · [Tests](tests/physical_pendulum)
 
 
 ## Launch guide
