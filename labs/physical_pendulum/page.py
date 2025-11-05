@@ -2,6 +2,8 @@ from math import radians
 
 import streamlit as st
 
+from tests.physical_pendulum.calculations import run_theoretical_simulation
+
 from .calculations import AngleCalculator, simulate
 from .calculations.util import calculate_mean_period, calculate_theoretical_period
 from .model import PendulumState
@@ -62,3 +64,26 @@ def page() -> None:
                 for value in extremes
             ]
         )
+
+        theoretical_states, _ = run_theoretical_simulation(
+            start_state,
+            friction_coefficient=calculator.friction_coefficient,
+            simulation_time=simulation_time,
+        )
+        st.line_chart(theoretical_states, x="time", y="angle")
+
+        difference = [
+            (theoretical_states[i].angle - values[i].angle) for i in range(len(theoretical_states))
+        ]
+        st.line_chart(
+            [
+                {
+                    "error": difference[i],
+                    "time": theoretical_states[i].time,
+                }
+                for i in range(len(theoretical_states))
+            ],
+            x="time",
+            y="error",
+        )
+        st.write(f"Max difference: {max(difference):.4f}")

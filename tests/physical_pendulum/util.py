@@ -1,11 +1,19 @@
 from labs.physical_pendulum.calculations import AngleCalculator, simulate
 from labs.physical_pendulum.model import PendulumState
 
-from .data import NO_FRICITON, PRECISION, SAMPLING_DELTA, SIMULATION_TIME
+from .data import (
+    ABSOLUTE_PRECISION,
+    NO_FRICITON,
+    RELATIVE_PRECISION,
+    SAMPLING_DELTA,
+    SIMULATION_TIME,
+)
 
 
 def almost_equal(value: float, reference: float) -> bool:
-    return abs(value - reference) < PRECISION
+    diff = abs(value - reference)
+    max_value = max(abs(value), abs(reference))
+    return diff < max(ABSOLUTE_PRECISION, RELATIVE_PRECISION * max_value)
 
 
 def run_simulation(
