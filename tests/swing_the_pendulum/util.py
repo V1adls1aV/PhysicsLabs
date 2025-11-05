@@ -1,5 +1,5 @@
-from labs.physical_pendulum.calculations import AngleCalculator, simulate
-from labs.physical_pendulum.model import PendulumState
+from labs.swing_the_pendulum.calculations import AngleCalculator, simulate
+from labs.swing_the_pendulum.model import PendulumState
 
 from .data import (
     ABSOLUTE_PRECISION,

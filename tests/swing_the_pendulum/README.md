@@ -1,6 +1,6 @@
 # М4. Физический маятник
 
-## [Общая информация](/labs/physical_pendulum)
+## [Общая информация](/labs/swing_the_pendulum)
 
 ## Тесты
 
@@ -119,7 +119,7 @@ $$\varphi(t)=e^{-\gamma\omega_0 t}\left(C_1\cos(\omega_d t)+C_2\sin(\omega_d t)\
 $$\omega_d=\omega_0\sqrt{1-\gamma^2}$$
 
 Функции расчета этих теор решений можно найти в
-[calculations.py](/tests/physical_pendulum/calculations.py)
+[calculations.py](/tests/swing_the_pendulum/calculations.py)
 
 ### Энергия
 

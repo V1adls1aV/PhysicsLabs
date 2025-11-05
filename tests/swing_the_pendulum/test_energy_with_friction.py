@@ -3,7 +3,7 @@ from statistics import mean
 
 import pytest
 
-from labs.physical_pendulum.model import PendulumState
+from labs.swing_the_pendulum.model import PendulumState
 
 from .data import (
     LIGHT_FRICITON,

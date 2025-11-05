@@ -3,7 +3,7 @@ from __future__ import annotations
 from math import cos, exp, sin, sqrt
 
 from labs.model.constant import g
-from labs.physical_pendulum.model import PendulumState
+from labs.swing_the_pendulum.model import PendulumState
 
 from .data import NO_FRICITON, SAMPLING_DELTA, SIMULATION_TIME
 

@@ -2,7 +2,7 @@ from math import radians
 
 import streamlit as st
 
-from tests.physical_pendulum.calculations import run_theoretical_simulation
+from tests.swing_the_pendulum.calculations import run_theoretical_simulation
 
 from .calculations import AngleCalculator, simulate
 from .calculations.util import calculate_mean_period, calculate_theoretical_period

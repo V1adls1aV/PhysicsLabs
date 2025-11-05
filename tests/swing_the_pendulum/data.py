@@ -1,6 +1,6 @@
 from math import radians
 
-from labs.physical_pendulum.model import PendulumState
+from labs.swing_the_pendulum.model import PendulumState
 
 ABSOLUTE_PRECISION = 1.75e-4  # 0.01 degrees  (about 0.05% of 2 degrees)
 RELATIVE_PRECISION = 5e-4  # 0.05%
