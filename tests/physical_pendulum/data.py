@@ -1,0 +1,27 @@
+from math import radians
+
+from labs.physical_pendulum.model import PendulumState
+
+PRECISION = 5e-3
+
+START_ANGLE = radians(3.0)
+START_LENGTH = 1.0
+START_WEIGHT = 1.0
+
+NO_FRICITON = 0.0
+LIGHT_FRICITON = 0.1
+MEDIUM_FRICITON = 1.0
+HEAVY_FRICITON = 5.0
+ENORMOUS_FRICITON = 10.0
+
+SIMULATION_TIME = 10.0
+SAMPLING_DELTA = 0.01
+
+
+def get_pendulum(
+    length: float = START_LENGTH, weight: float = START_WEIGHT, angle: float = START_ANGLE
+) -> PendulumState:
+    return PendulumState(length=length, weight=weight, angle=angle)
+
+
+DEFAULT_PENDULUM = get_pendulum()

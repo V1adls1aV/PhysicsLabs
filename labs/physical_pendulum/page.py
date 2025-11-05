@@ -1,11 +1,9 @@
-import math
 from math import radians
 
 import streamlit as st
 
-from labs.model.constant import g
-
 from .calculations import AngleCalculator, simulate
+from .calculations.util import calculate_mean_period, calculate_theoretical_period
 from .model import PendulumState
 
 
@@ -49,12 +47,10 @@ def page() -> None:
             col1, col2 = st.columns(2)
             with col1:
                 st.write("#### Theoretical period")
-                st.write(f"{2 * math.pi * math.sqrt(2 * start_state.length / (3 * g)):.4f} s")
+                st.write(f"{calculate_theoretical_period(start_state.length):.4f} s")
             with col2:
                 st.write("#### Actual period")
-                st.write(
-                    f"{2 * (extremes[-1].time - extremes[0].time) / (len(extremes) - 1):.4f} s"
-                )
+                st.write(f"{calculate_mean_period(extremes):.4f} s")
 
         st.write("## Extremes")
         st.table(
