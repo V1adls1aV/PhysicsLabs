@@ -7,7 +7,7 @@ def simulate(
 ) -> tuple[list[PendulumState], list[PendulumState]]:
     time = 0.0
 
-    states = []
+    states = [calculator.initial_state]
     extremes = [calculator.initial_state]
 
     while time <= simulation_time:

@@ -7,6 +7,7 @@ from labs.model.constant import g
 from .model import PendulumState
 from .simulation import PendulumCalculator, simulate
 from .simulation.util import calculate_mean_period, calculate_theoretical_period
+from .visualization import render_pendulum_animation
 
 
 def page() -> None:
@@ -33,6 +34,8 @@ def page() -> None:
         friction_coefficient=friction_coefficient,
     )
     states, extreme_states = tuple(simulate(calculator, 0.01, simulation_time))
+
+    st.plotly_chart(render_pendulum_animation(states=states, extreme_states=extreme_states))
 
     st.subheader("Pendulum parameters over time")
 

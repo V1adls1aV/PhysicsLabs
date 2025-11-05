@@ -18,7 +18,7 @@ def run_theoretical_simulation(
     simulation_time: float = SIMULATION_TIME,
 ) -> tuple[list[PendulumState], list[PendulumState]]:
     time = 0.0
-    states = []
+    states = [pendulum]
     extremes = [pendulum]
 
     initial_angle = pendulum.angle
