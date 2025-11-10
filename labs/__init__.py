@@ -3,6 +3,7 @@ __all__ = ["pages"]
 import streamlit as st
 
 from .flight_to_mars import page as flight_to_mars_page
+from .roll_the_ball import page as roll_the_ball_page
 from .throw_a_rock import page as throw_a_rock_page
 
 pages = [
@@ -17,5 +18,11 @@ pages = [
         title="Flight to Mars",
         icon="🚀",
         url_path="flight-to-mars",
+    ),
+    st.Page(
+        roll_the_ball_page,
+        title="Roll the ball",
+        icon="⚽",
+        url_path="roll-the-ball",
     ),
 ]

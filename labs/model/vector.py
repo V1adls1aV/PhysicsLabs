@@ -7,6 +7,8 @@ from functools import cached_property
 import pandas as pd
 import streamlit as st
 
+from labs.util.trigonometry import cos_rounded, sin_rounded
+
 
 @dataclass(frozen=True)
 class Vector2D:
@@ -15,7 +17,7 @@ class Vector2D:
 
     @classmethod
     def from_polar(cls, norm: float, angle: float) -> Vector2D:
-        return Vector2D(norm * round(math.cos(angle), 15), norm * round(math.sin(angle), 15))
+        return Vector2D(norm * cos_rounded(angle), norm * sin_rounded(angle))
 
     def to_polar(self) -> tuple[float, float]:
         return self.norm, self.angle
@@ -43,10 +45,16 @@ class Vector2D:
     def __matmul__(self, other: Vector2D) -> float:
         return self.x * other.x + self.y * other.y
 
+    def rotate(self, delta_angle: float) -> Vector2D:
+        norm, angle = self.to_polar()
+        angle += delta_angle
+        return Vector2D.from_polar(norm, angle)
+
 
 def trajectory_to_df(trajectory_data: list[tuple[Vector2D, Vector2D]]) -> pd.DataFrame:
     """
     Build a DataFrame with time, position, and velocity characteristics.
+
     Columns: time, x, y, velocity, velocity_angle
     """
     return pd.DataFrame(

@@ -45,7 +45,7 @@ def _line_intersects_circle(
 ) -> bool:
     """
     Check if line segment from (x1,y1) to (x2,y2) intersects circle at (cx,cy) with given radius.
-    """
+    """  # noqa: D200
     # Vector from point 1 to point 2
     dx = x2 - x1
     dy = y2 - y1
