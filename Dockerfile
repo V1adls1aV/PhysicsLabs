@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=$UV_CACHE_DIR \
 
 FROM python:3.12-slim-bookworm
 
-RUN groupadd --system app && useradd --system --gid app app
+RUN groupadd --system app && useradd --system --create-home --gid app app
 
 COPY --from=builder --chown=app:app /app /app
 WORKDIR /app
